@@ -445,6 +445,71 @@ curl --noproxy '*' http://poc.k8s.local/
 
 The temporary `default` NAT interface used to install packages was detached after setup; the VM now has only the internal interface.
 
-### Grafana storage note
+### Grafana/PostgreSQL storage note (PoC)
 
-Grafana's SQLite database must not run on the NFS-backed PVC: SQLite file locking over this NFS setup caused `SQLITE_BUSY` errors and login requests to time out. The Grafana release was therefore changed to use local ephemeral storage on `k8s02` (the original NFS PVC `storage-monitoring-grafana-0` is retained as a backup). Grafana is pinned to `k8s02`, where the image is already cached, and the admin Secret remains `grafana-admin`.
+Grafana is intentionally a single replica. Its database is PostgreSQL 16 on `k8s-storage` (`10.77.0.14`) using the VM's normal filesystem; no dedicated PostgreSQL disk or HA database is used for this HolmesGPT PoC. Grafana persistence is disabled, so it does not use the NFS PVC for SQLite. The PostgreSQL database/user are `grafana` and the Kubernetes Secret `monitoring/grafana-postgres` supplies the connection password. The original NFS PVC is retained as a rollback artifact.
+
+Because the lab network does not advertise Calico pod CIDRs to the storage VM, routes for the current pod ranges (`10.244.235.0/24`, `10.244.236.0/24`, `10.244.237.0/24`) were added on `k8s-storage`; these are PoC runtime routes and should be replaced by proper routed networking if the environment is rebuilt.
+
+Prometheus remains a single replica for the PoC. Loki continues to use the NFS-backed storage; no monitoring HA or storage replication is in scope.
+
+## HolmesGPT
+
+Reproducible Helm values and credential templates are kept under [`deploy/k8s/`](/home/haitc/project/pom/deploy/k8s/):
+
+- [`values/holmesgpt.yaml`](/home/haitc/project/pom/deploy/k8s/values/holmesgpt.yaml)
+- [`values/monitoring.yaml`](/home/haitc/project/pom/deploy/k8s/values/monitoring.yaml)
+- [`values/loki.yaml`](/home/haitc/project/pom/deploy/k8s/values/loki.yaml)
+- Secret templates under [`deploy/k8s/secrets/`](/home/haitc/project/pom/deploy/k8s/secrets/); replace placeholders locally and never commit populated copies.
+
+The install order and pinned chart versions are documented in [`deploy/k8s/README.md`](/home/haitc/project/pom/deploy/k8s/README.md). The values reproduce the current PoC sizing and read-only HolmesGPT RBAC; they do not include credentials.
+
+HolmesGPT can be accessed through the existing `k8s-lb` without port-forwarding:
+
+```bash
+kubectl apply -f deploy/k8s/holmesgpt-ingress.yaml
+echo '10.77.0.15 holmesgpt.k8s.local' | sudo tee -a /etc/hosts
+curl --noproxy '*' http://holmesgpt.k8s.local/api/health
+```
+
+The Ingress uses ingress-nginx NodePort `30553`; the LB's default virtual host forwards unmatched hostnames to that NodePort.
+
+### HolmesGPT CLI on the host
+
+The host has HolmesGPT CLI `0.39.0` installed with `uv` using the existing Python 3.12 runtime. Its model configuration is stored in `~/.holmes/model_list.yaml` and points to the same LiteLLM model as the cluster. The API key is intentionally not stored in that file.
+
+Run it by exporting only the key from the existing LibreChat `.env` (do not source the whole file because it contains shell-incompatible values):
+
+```bash
+export LITELLM_API_KEY="$(sed -n 's/^LITELLM_API_KEY=//p' ~/project/LibreChat/.env | sed 's/^"//; s/"$//')"
+holmes ask --model mistral --no-interactive \
+  'Liệt kê các node Kubernetes và trạng thái Ready của chúng.'
+```
+
+The CLI uses the host's `~/.kube/config`, so it can inspect Kubernetes directly. Optional integrations that are not installed on the host may show as unavailable; the Kubernetes core/logs and Helm toolsets are available.
+
+HolmesGPT `0.39.0` is installed with Helm release `holmesgpt` in namespace `holmesgpt`:
+
+- Service: `holmesgpt-holmes` (ClusterIP, port 80 -> container port 5050)
+- Replica: 1, pinned to `k8s02` for the PoC
+- Model gateway: LiteLLM-compatible endpoint `https://llmpipe.vnpost.vn/v1`
+- Model: `mistral` (`openai/mistral-3.5`)
+- Enabled toolsets: Kubernetes core/logs, kube-prometheus-stack, Prometheus metrics, Loki logs
+- Disabled: Internet, Bash, Robusta, Skills, Connectivity Check and all remediation/write actions
+- RBAC: generated ClusterRole contains only `get`, `list`, and `watch` verbs; deleting pods is denied
+- `CLUSTER_NAME=k8s-poc` is set so toolset status synchronization can identify the cluster.
+- Loki toolset uses the built-in `grafana/loki` definition with `api_url=http://loki-gateway.loki.svc.cluster.local`.
+- LiteLLM cost-map network lookup is disabled; model token limits are explicitly set for the configured gateway model.
+
+The cluster has no general Internet egress. To reach LiteLLM, `k8s02` uses a temporary NAT interface with a single host route to the resolved LiteLLM address; its default route remains the internal `postops-k8s` gateway. The route is currently ephemeral and must be made persistent or replaced with an approved internal egress proxy before treating this as production-like infrastructure.
+
+Validation performed through a local port-forward:
+
+```bash
+kubectl -n holmesgpt port-forward svc/holmesgpt-holmes 18080:80
+curl -H 'Content-Type: application/json' \
+  -d '{"ask":"List the Kubernetes nodes and report their readiness status.","model":"mistral"}' \
+  http://127.0.0.1:18080/api/chat
+```
+
+The Kubernetes investigation returned all three nodes as `Ready`. The previous missing-cluster and invalid-Loki-toolset warnings were corrected and the Helm release is now deployed.

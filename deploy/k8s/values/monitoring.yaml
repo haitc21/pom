@@ -1,0 +1,63 @@
+grafana:
+  enabled: true
+  replicas: 1
+  nodeSelector:
+    kubernetes.io/hostname: k8s02
+  persistence:
+    enabled: false
+  admin:
+    existingSecret: grafana-admin
+    userKey: admin-user
+    passwordKey: admin-password
+  env:
+    GF_DATABASE_TYPE: postgres
+    GF_DATABASE_HOST: 10.77.0.14:5432
+    GF_DATABASE_NAME: grafana
+    GF_DATABASE_USER: grafana
+  envValueFrom:
+    GF_DATABASE_PASSWORD:
+      secretKeyRef:
+        name: grafana-postgres
+        key: GF_DATABASE_PASSWORD
+  service:
+    type: NodePort
+    nodePort: 30030
+  additionalDataSources:
+    - name: Loki
+      type: loki
+      access: proxy
+      url: http://loki-gateway.loki.svc.cluster.local
+      isDefault: false
+      jsonData:
+        maxLines: 1000
+        timeout: 60
+prometheus:
+  enabled: true
+  prometheusSpec:
+    retention: 3d
+    resources:
+      requests:
+        cpu: 250m
+        memory: 512Mi
+      limits:
+        cpu: 1000m
+        memory: 1Gi
+    storageSpec:
+      volumeClaimTemplate:
+        spec:
+          storageClassName: nfs-client
+          accessModes: [ReadWriteOnce]
+          resources:
+            requests:
+              storage: 10Gi
+alertmanager:
+  enabled: true
+  alertmanagerSpec:
+    storage:
+      volumeClaimTemplate:
+        spec:
+          storageClassName: nfs-client
+          accessModes: [ReadWriteOnce]
+          resources:
+            requests:
+              storage: 2Gi

@@ -1,0 +1,14 @@
+# Apply after the HolmesGPT Helm release when the LiteLLM hostname is only
+# reachable through the lab's temporary routed address.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: holmesgpt-holmes
+  namespace: holmesgpt
+spec:
+  template:
+    spec:
+      hostAliases:
+        - ip: 10.1.50.142
+          hostnames:
+            - llmpipe.vnpost.vn

@@ -1,0 +1,58 @@
+image: holmes:0.39.0
+registry: robustadev
+imagePullPolicy: IfNotPresent
+replicas: 1
+nodeSelector:
+  kubernetes.io/hostname: k8s02
+k8sRBAC: false
+resources:
+  requests:
+    cpu: 100m
+    memory: 512Mi
+  limits:
+    memory: 1Gi
+extraEnvVarsSecrets:
+  - holmesgpt-secrets
+additionalEnvVars:
+  - name: CLUSTER_NAME
+    value: k8s-poc
+  - name: LITELLM_LOCAL_MODEL_COST_MAP
+    value: "true"
+  - name: OVERRIDE_MAX_CONTENT_SIZE
+    value: "200000"
+  - name: OVERRIDE_MAX_OUTPUT_TOKEN
+    value: "64000"
+  - name: NO_PROXY
+    value: .svc,.svc.cluster.local,10.96.0.0/12,10.244.0.0/16,10.77.0.0/24,llmpipe.vnpost.vn,10.1.50.142
+modelList:
+  mistral:
+    model: openai/mistral-3.5
+    api_key: envRef:LITELLM_API_KEY
+    api_base: https://llmpipe.vnpost.vn/v1
+    temperature: 0
+toolsets:
+  kubernetes/core:
+    enabled: true
+  kubernetes/logs:
+    enabled: true
+  kubernetes/kube-prometheus-stack:
+    enabled: true
+  prometheus/metrics:
+    enabled: true
+    subtype: prometheus
+    config:
+      prometheus_url: http://monitoring-kube-prometheus-prometheus.monitoring.svc.cluster.local:9090
+  grafana/loki:
+    enabled: true
+    config:
+      api_url: http://loki-gateway.loki.svc.cluster.local
+  internet:
+    enabled: false
+  bash:
+    enabled: false
+  robusta:
+    enabled: false
+  skills:
+    enabled: false
+  connectivity_check:
+    enabled: false
