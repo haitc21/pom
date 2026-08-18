@@ -1,15 +1,16 @@
-# HolmesGPT and Agent Memory PoC Evaluation Design
+# HolmesGPT and POM Memory PoC Evaluation Design
 
 ## 1. Objective
 
-Measure whether HolmesGPT can diagnose reproducible Kubernetes incidents accurately and efficiently, then measure the incremental effect of TencentDB Agent Memory using the same model, cluster, prompts, observability sources, and scoring rules.
+Measure how effectively HolmesGPT assists a DevOps Engineer during reproducible Kubernetes incidents, then measure the incremental effect of local POM Memory using the same model, cluster, prompts, observability sources, and scoring rules.
 
-The experiment answers four questions:
+The experiment answers five questions:
 
 1. Does HolmesGPT identify the actual root cause rather than only restating the symptom?
 2. Does it cite evidence that exists in Kubernetes, Prometheus, or Loki?
 3. Does it propose a correct, safe remediation and a valid recovery check?
-4. Does Agent Memory improve repeated and analogous incidents without causing stale-memory or cross-case contamination?
+4. Does POM Memory improve repeated and analogous incidents without causing stale-memory, anchoring, or false matches between the same symptom and different root causes?
+5. Can POM preserve and reuse the engineer's confirmed resolution when HolmesGPT's initial answer is incomplete or wrong?
 
 Redmine integration and autonomous remediation are out of scope. HolmesGPT remains read-only.
 
@@ -33,7 +34,9 @@ External references:
 - Kubernetes Pod debugging flow: <https://kubernetes.io/docs/tasks/debug/debug-application/debug-pods/>
 - Kubernetes Service debugging flow: <https://kubernetes.io/docs/tasks/debug/debug-application/debug-service/>
 - Current CKAD scope: <https://training.linuxfoundation.org/certification/certified-kubernetes-application-developer-ckad/>
-- TencentDB Agent Memory V3 integration model: <https://cloud.tencent.com/document/product/1813/132103>
+- Mem0 OSS overview: <https://docs.mem0.ai/open-source/overview>
+- Mem0 metadata filtering: <https://docs.mem0.ai/open-source/features/metadata-filtering>
+- FastEmbed supported multilingual models: <https://qdrant.github.io/fastembed/examples/Supported_Models/>
 
 The LFD259 resources may be adapted, but copied manifests must be reviewed for deprecated APIs and unsafe defaults before use on Kubernetes v1.35.7. Images must be pinned by immutable digest after the first successful pull.
 
@@ -50,11 +53,13 @@ isolated namespace holmes-eval-<case-id>
           └── Loki logs ───────────────┘
                                       │
                      baseline: no recalled memory
-                     memory: approved recall injected
+                     memory: approved POM recall injected
                                       │
                                       ▼
 ground truth + rubric ─────────── deterministic and blinded scoring
 ```
+
+PostgreSQL is the business source of truth for conversations, engineer feedback, approved resolutions, provenance, and Skill versions. Mem0/Qdrant is a derived semantic index only; every recalled item must resolve back to an approved PostgreSQL record before it is injected into HolmesGPT.
 
 Each case has five independent artifacts:
 
@@ -175,21 +180,21 @@ Stopping the control-plane components, corrupting etcd, expiring certificates, c
 
 ### Memory preparation
 
-Only approved Run A cases assigned to the training partition are written to Agent Memory. Each memory record contains:
+Only engineer-confirmed Run A cases assigned to the training partition are written to PostgreSQL and indexed by Mem0. A case may be approved even when HolmesGPT did not find the final answer, provided the engineer supplied and confirmed the correct resolution. Each indexed record contains:
 
 - incident family and environment scope;
 - confirmed symptom, root cause, decisive evidence, remediation, and recovery check;
-- source case ID and approval state;
+- source case ID, PostgreSQL resolution ID, approval state, approver, and content hash;
 - explicit applicability and non-applicability conditions;
 - no secrets, raw credentials, full logs, or unstable Pod names/IPs.
 
-Use stable isolation dimensions: `team_id=postops-poc`, `agent_id=holmes-k8s-poc`, a unique `user_id` for the experiment, one `session_id` per incident, and `task_id=<case-id>-<run-id>`. Memory must never be populated from held-out or negative-control answers.
+Use stable isolation dimensions: `user_id=postops-poc`, `agent_id=holmes-k8s-poc`, and `run_id=<case-id>-<run-id>`. Store `case_id`, `resolution_id`, `incident_family`, `approval_status`, `cluster_scope`, and `skill_version` as metadata. Memory must never be populated from held-out, negative-control, unapproved assistant answers, or raw conversation text.
 
-### Run B — HolmesGPT plus Agent Memory
+### Run B — HolmesGPT plus POM Memory (Mem0 OSS)
 
 1. Restore each case to its identical pre-injection baseline and reuse the Run A random seed with a separately recorded order.
 2. Keep the same model and HolmesGPT configuration.
-3. Retrieve memory before calling HolmesGPT, record the top-k IDs/scores, and inject only redacted approved records.
+3. Retrieve candidates before calling HolmesGPT, resolve them to approved PostgreSQL records, record top-k IDs/scores, and inject only redacted approved resolutions.
 4. Run the same prompts without editing them to favor memory.
 5. Include four cohorts:
    - `exact recurrence`: same root cause, renamed resources;
@@ -199,6 +204,8 @@ Use stable isolation dimensions: `team_id=postops-poc`, `agent_id=holmes-k8s-poc
 6. Capture the same artifacts and score without revealing whether the response came from Run A or Run B.
 
 This is a paired comparison. The primary statistic is the per-case difference `Run B score - Run A score`, not the raw average of unrelated cases.
+
+Run B uses two retrieval checkpoints. The first uses only the ticket description and returns low-trust candidates. The second runs after HolmesGPT has collected Kubernetes evidence and reranks candidates using an incident fingerprint. Similar wording alone must never produce a `same root cause` conclusion.
 
 ## 7. Scoring rubric
 
@@ -234,6 +241,9 @@ Scores are clamped to 0–100. A case passes at 75, but root-cause correctness m
 - number of human follow-up turns needed;
 - estimated model cost;
 - memory retrieval latency and number of retrieved records.
+- number of engineer corrections and follow-up turns before confirmed resolution;
+- time required to review or rewrite the generated resolution summary;
+- useful investigation steps even when the first diagnosis is wrong.
 
 ### Memory-specific metrics
 
@@ -245,10 +255,13 @@ Scores are clamped to 0–100. A case passes at 75, but root-cause correctness m
 - hallucination-rate change;
 - latency and token change;
 - citation/provenance correctness for recalled incidents.
+- same-cause recall at 3;
+- hard-negative false-positive rate for same-symptom/different-cause cases;
+- percentage of engineer-authored resolutions stored and recalled without semantic distortion.
 
 ## 8. Acceptance criteria
 
-The PoC supports the proposed value of Agent Memory only if all conditions hold:
+The PoC supports the proposed value of POM Memory only if all conditions hold:
 
 - Baseline Tier 0–1 mean accuracy is at least 70/100.
 - Run B improves paired mean accuracy by at least 10 points for exact and analogous cohorts.
@@ -256,6 +269,8 @@ The PoC supports the proposed value of Agent Memory only if all conditions hold:
 - Negative-transfer rate is at most 10% and no dangerous recommendation is introduced by memory.
 - Novel holdout accuracy regresses by no more than 5 points.
 - At least 90% of recalled claims include the correct source case and applicability scope.
+- Every reusable memory resolves to an engineer-approved PostgreSQL resolution; no unapproved assistant conclusion is retrieved.
+- POM preserves the engineer's final root cause and effective remediation even when they differ from HolmesGPT's initial answer.
 - All low-risk cases clean up successfully; Tier 3 restores all nodes to `Ready` within 5 minutes.
 
 Report confidence intervals and every per-case result. Do not declare success from the aggregate alone.

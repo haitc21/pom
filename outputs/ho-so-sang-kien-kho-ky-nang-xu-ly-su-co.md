@@ -9,19 +9,19 @@
 | Tên mô tả | **PostOps Memory – Nền tảng trí nhớ và hỗ trợ xử lý sự cố vận hành thông minh** |
 | Đơn vị | Phòng Điện toán đám mây – Trung tâm CNTT |
 | Phạm vi PoC | Kubernetes, Prometheus và ticket Redmine |
-| Công nghệ chính | TencentDB Agent Memory, HolmesGPT và LiteLLM on-premise |
+| Công nghệ chính | PostgreSQL, Mem0 OSS, HolmesGPT và LiteLLM on-premise |
 
 ## 2. Tóm tắt ý tưởng
 
-**PostOps Memory** là nền tảng tích lũy trí nhớ vận hành từ các sự cố thực tế, giúp AI tái sử dụng kinh nghiệm đã được kỹ sư xác nhận để hỗ trợ điều tra những sự cố tiếp theo.
+**PostOps Memory** là trợ lý có trí nhớ cho DevOps Engineer, tích lũy kinh nghiệm từ các sự cố thực tế và tái sử dụng những kết luận đã được kỹ sư xác nhận để hỗ trợ điều tra các sự cố tiếp theo. POM không thay thế quyết định chuyên môn và không bắt buộc phải đưa ra đáp án đúng ngay ở lần trả lời đầu tiên.
 
-Khi có ticket mới, giải pháp lấy nội dung từ Redmine, tìm các trường hợp và Skill tương tự trong TencentDB Agent Memory rồi cung cấp ngữ cảnh cho HolmesGPT. HolmesGPT truy vấn dữ liệu hiện tại từ Kubernetes và Prometheus ở chế độ chỉ đọc để đề xuất giả thuyết, bước kiểm tra, bằng chứng và hướng xử lý. Kỹ sư vận hành quyết định hành động, xác nhận nguyên nhân và đánh giá từng gợi ý.
+Khi có ticket mới, giải pháp lấy nội dung từ Redmine, tìm các sự cố và Skill tương tự trong kho trí nhớ rồi cung cấp ngữ cảnh cho HolmesGPT. HolmesGPT truy vấn dữ liệu hiện tại từ Kubernetes và Prometheus ở chế độ chỉ đọc để đề xuất giả thuyết, bước kiểm tra, bằng chứng và hướng xử lý. Kỹ sư có thể tiếp tục trao đổi nhiều vòng, bổ sung kết quả kiểm tra hoặc tự đưa ra nguyên nhân và cách xử lý chính xác cuối cùng.
 
-Sau khi ticket hoàn tất, lịch sử điều tra, bằng chứng quan trọng, kết luận và phản hồi được lưu thành trí nhớ vận hành. Hệ thống tạo hoặc cập nhật Skill xử lý sự cố; Skill phải được con người phê duyệt trước khi cung cấp cho HolmesGPT.
+Sau khi ticket hoàn tất, POM tổng hợp các bước điều tra và lệnh nằm rải rác trong cuộc trò chuyện thành một bản nháp resolution. Kỹ sư sửa hoặc thay thế bản nháp, xác nhận nguyên nhân, cách xử lý và cách kiểm tra phục hồi. PostgreSQL lưu lịch sử cùng bản resolution đã duyệt; chỉ bản đã xác nhận mới được lập chỉ mục bằng Mem0 OSS và dùng để tạo hoặc cập nhật Skill.
 
 Vòng lặp cải tiến:
 
-**Ticket → Tìm kinh nghiệm → Điều tra → Kỹ sư xác nhận → Lưu trí nhớ → Tạo/cập nhật Skill → Phê duyệt → Tái sử dụng → Đánh giá và cải tiến.**
+**Ticket → Tìm ứng viên tương tự → Điều tra và chat nhiều vòng → Kỹ sư kết luận → Tổng hợp resolution → Kỹ sư duyệt → Lập chỉ mục trí nhớ → Tạo/cập nhật Skill → Phê duyệt → Tái sử dụng.**
 
 ## 3. Hiện trạng và vấn đề cần giải quyết
 
@@ -42,6 +42,7 @@ Vòng lặp cải tiến:
 - Ghi nhận lựa chọn, kết quả thực hiện và đánh giá của kỹ sư.
 - Tạo bản nháp Skill từ ticket đã xử lý và cho phép phê duyệt trước khi phát hành.
 - Chứng minh khả năng giảm thời gian điều tra và chuẩn hóa quy trình xử lý sự cố.
+- Ghi nhận được kết luận chính xác do kỹ sư cung cấp ngay cả khi các gợi ý ban đầu của AI chưa đúng.
 
 ### 4.2. Mục tiêu dài hạn
 
@@ -59,6 +60,8 @@ Vòng lặp cải tiến:
 5. **Chỉ sử dụng tri thức đã duyệt:** Trí nhớ hoặc Skill chưa xác nhận không được coi là quy trình chính thức.
 6. **Có thể truy vết:** Gợi ý phải chỉ ra ticket, Skill hoặc bằng chứng vận hành làm nguồn.
 7. **PoC nhỏ nhưng mở rộng được:** Bắt đầu với một cluster và hai loại sự cố phổ biến.
+8. **AI được phép chưa đúng:** POM được đánh giá theo mức hỗ trợ kỹ sư, khả năng duy trì ngữ cảnh và chất lượng tri thức sau xác nhận, không chỉ theo câu trả lời đầu tiên.
+9. **Tương đồng không đồng nghĩa cùng nguyên nhân:** Câu chữ giống nhau chỉ tạo ứng viên; bằng chứng hiện tại và dấu vân tay sự cố quyết định mức tương đồng kỹ thuật.
 
 ## 6. Các thành phần giải pháp
 
@@ -75,29 +78,38 @@ Vòng lặp cải tiến:
 - Hình thành, kiểm chứng và loại trừ giả thuyết.
 - Trình bày bằng chứng, hướng kiểm tra, đề xuất xử lý và cách xác nhận phục hồi.
 
-### 6.3. TencentDB Agent Memory – nền tảng trí nhớ vận hành
+### 6.3. PostgreSQL – nguồn dữ liệu nghiệp vụ
 
-- Lưu hội thoại, quá trình điều tra, lần gọi công cụ, kết luận và feedback.
-- Trích xuất và tổ chức kinh nghiệm thành các lớp trí nhớ có thể tìm kiếm.
-- Quản lý Skill, tài nguyên liên quan, phiên bản, quyền sở hữu và trạng thái.
-- Tìm kiếm kết hợp từ khóa và ngữ nghĩa để đưa trường hợp phù hợp vào ngữ cảnh mới.
-- Triển khai nội bộ để bảo vệ dữ liệu vận hành.
+- Lưu ticket, phiên chat, tool call, kết quả, feedback và bản resolution cuối do kỹ sư xác nhận.
+- Quản lý trạng thái phê duyệt, người xác nhận, phiên bản Skill và liên kết tới bằng chứng nguồn.
+- Phân biệt nội dung AI chưa kiểm chứng với tri thức vận hành đã duyệt.
+- Là nguồn dữ liệu chuẩn để dựng lại phiên điều tra và tái tạo chỉ mục tìm kiếm.
 
-### 6.4. LiteLLM – cổng mô hình AI nội bộ
+### 6.4. Mem0 OSS – lớp trích xuất và truy xuất trí nhớ
 
-- Cung cấp API thống nhất cho HolmesGPT, Agent Memory và ứng dụng.
+- Chạy nội bộ, sử dụng LiteLLM cho trích xuất và embedding multilingual chạy local.
+- Hỗ trợ trích xuất bản nháp memory từ hội thoại dài và tìm ứng viên tương đồng về ngữ nghĩa.
+- Chỉ lập chỉ mục resolution đã được kỹ sư xác nhận; không quản lý approval hoặc phiên bản Skill.
+- Trả về memory ID, score và metadata nguồn để POM kiểm tra lại bản chuẩn trong PostgreSQL.
+- Là thành phần tùy chọn của PoC; hiệu quả phải được so sánh với tìm kiếm trực tiếp bằng PostgreSQL/pgvector.
+
+### 6.5. LiteLLM – cổng mô hình AI nội bộ
+
+- Cung cấp API thống nhất cho HolmesGPT, tác vụ trích xuất của Mem0 và ứng dụng.
 - Thực hiện định tuyến model, logging, rate limit và fallback.
 - Không tự huấn luyện hoặc thay đổi trọng số model sau mỗi ticket.
 
-### 6.5. PostOps Memory – lớp tích hợp và giao diện nghiệp vụ
+### 6.6. PostOps Memory – lớp tích hợp và giao diện nghiệp vụ
 
 - Đọc và liên kết ticket Redmine.
 - Khởi tạo phiên điều tra HolmesGPT.
-- Tìm và hiển thị trí nhớ/Skill tương tự từ TencentDB Agent Memory.
+- Tìm và hiển thị các sự cố/Skill ứng viên từ PostgreSQL và Mem0 OSS.
 - Hiển thị giả thuyết, bằng chứng và đề xuất xử lý.
+- Duy trì trạng thái điều tra khi cuộc trò chuyện thay đổi xa so với ticket ban đầu.
+- Gom các bước kiểm tra và lệnh rải rác thành bản nháp resolution để kỹ sư sửa hoặc thay thế.
 - Thu nhận kết luận và feedback của kỹ sư.
 - Điều phối tạo, rà soát, phê duyệt và phát hành Skill.
-- Chuyển đổi Skill sang `SKILL.md` nếu Agent Memory và HolmesGPT chưa tương thích trực tiếp.
+- Chuyển đổi Skill sang `SKILL.md` để cung cấp cho HolmesGPT theo hợp đồng ổn định.
 
 ## 7. Kiến trúc logic
 
@@ -107,22 +119,23 @@ Người vận hành
       ▼
 PostOps Memory ─────────────── Redmine
       │
-      ├── tìm/lưu trí nhớ ─── TencentDB Agent Memory
+      ├── dữ liệu chuẩn ───── PostgreSQL
+      ├── recall ngữ nghĩa ── Mem0 OSS / Qdrant
       │
       └── yêu cầu điều tra ── HolmesGPT
                                   │
                          Kubernetes / Prometheus
 
-HolmesGPT và Agent Memory ───── LiteLLM ───── Model AI on-premise
+HolmesGPT và Mem0 extraction ── LiteLLM ───── Model AI on-premise
 ```
 
-HolmesGPT chuyên điều tra; TencentDB Agent Memory chuyên ghi nhớ; LiteLLM cung cấp model; Redmine quản lý sự cố; PostOps Memory điều phối quy trình nghiệp vụ.
+HolmesGPT chuyên điều tra; PostgreSQL lưu dữ liệu nghiệp vụ đã xác nhận; Mem0 hỗ trợ trích xuất và tìm kiếm; LiteLLM cung cấp model; Redmine quản lý ticket; PostOps Memory điều phối quy trình và giữ kỹ sư ở vị trí quyết định cuối cùng.
 
 ## 8. Phạm vi PoC tối giản
 
 - Một Kubernetes cluster thử nghiệm hoặc phạm vi production chỉ đọc.
 - Hai loại sự cố: `CrashLoopBackOff` và `OOMKilled`.
-- Khoảng 10–20 ticket hoặc kịch bản lịch sử đã được xác nhận.
+- Khoảng 10–20 ticket hoặc kịch bản lịch sử đã được xác nhận, có cả trường hợp diễn đạt khác nhau nhưng cùng nguyên nhân và cùng triệu chứng nhưng khác nguyên nhân.
 - Dữ liệu Kubernetes và Prometheus; chưa thu thập toàn bộ log vào kho mới.
 - Người dùng nhập Redmine ticket ID để bắt đầu điều tra.
 - Skill phải được kỹ sư duyệt trước khi sử dụng lại.
@@ -138,9 +151,9 @@ Kỹ sư nhập Redmine ticket ID và bổ sung cluster, namespace hoặc khoả
 
 PostOps Memory đọc tiêu đề, mô tả, bình luận và thông tin liên quan. Ticket ID là khóa liên kết giữa sự cố, nhiều alert và các dịch vụ bị ảnh hưởng.
 
-### Bước 3: Tìm trí nhớ và Skill tương tự
+### Bước 3: Tìm trí nhớ và Skill ứng viên
 
-Ứng dụng truy vấn TencentDB Agent Memory để tìm sự cố cũ, nguyên nhân, cách xử lý và Skill có điều kiện áp dụng phù hợp. Kỹ sư có thể chọn hoặc đánh dấu kết quả không liên quan.
+Ứng dụng kết hợp metadata, từ khóa và semantic search để tìm sự cố cũ, nguyên nhân, cách xử lý và Skill có điều kiện áp dụng phù hợp. Kết quả chỉ là ứng viên; kỹ sư có thể chọn hoặc đánh dấu không liên quan. POM không coi hai ticket là cùng nguyên nhân chỉ vì câu chữ giống nhau.
 
 ### Bước 4: HolmesGPT điều tra
 
@@ -152,15 +165,15 @@ Hệ thống hiển thị giả thuyết theo thứ tự ưu tiên, các bước
 
 ### Bước 6: Kỹ sư xử lý và phản hồi
 
-Kỹ sư chọn đề xuất phù hợp và đánh giá từng gợi ý theo các mức: hữu ích, không cần thiết, không phù hợp, không chính xác, có rủi ro hoặc thiếu bước quan trọng.
+Kỹ sư tiếp tục chat, bổ sung bằng chứng, thử các bước phù hợp hoặc tự thực hiện cách điều tra riêng. Kỹ sư đánh giá gợi ý theo các mức: hữu ích, không cần thiết, không phù hợp, không chính xác, có rủi ro hoặc thiếu bước quan trọng. POM giữ lịch sử để không mất các lệnh và kết quả nằm rải rác trong nhiều lượt trao đổi.
 
-### Bước 7: Xác nhận kết quả thực tế
+### Bước 7: Tổng hợp và xác nhận kết quả thực tế
 
-Kỹ sư xác nhận nguyên nhân gốc, cách khắc phục, cách kiểm tra phục hồi và kết quả cuối cùng. Đây là dữ liệu chuẩn để cải thiện hệ thống.
+Khi kỹ sư thông báo sự cố đã được xử lý, POM tạo bản nháp resolution gồm nguyên nhân, các bước điều tra hữu ích, lệnh khắc phục thực tế, cách kiểm tra phục hồi và các thử nghiệm không hiệu quả. Kỹ sư có thể sửa, xóa hoặc viết lại hoàn toàn. Nội dung kỹ sư xác nhận là dữ liệu chuẩn để cải thiện hệ thống, không phụ thuộc việc AI có tìm ra đáp án hay không.
 
 ### Bước 8: Ghi nhớ kinh nghiệm
 
-PostOps Memory gửi phiên điều tra, bằng chứng quan trọng, kết luận và feedback vào TencentDB Agent Memory. Chỉ lưu truy vấn, kết quả chọn lọc và tham chiếu; không lưu toàn bộ telemetry.
+PostOps Memory lưu raw conversation có kiểm soát, bằng chứng quan trọng, feedback và resolution đã duyệt vào PostgreSQL. Sau đó hệ thống tạo incident fingerprint và search document đã chuẩn hóa; chỉ nội dung đã xác nhận mới được đưa vào Mem0 hoặc pgvector. Không sao chép toàn bộ telemetry.
 
 ### Bước 9: Tạo hoặc cập nhật Skill
 
@@ -172,7 +185,7 @@ Kỹ sư rà soát, sửa và phê duyệt Skill. PostOps Memory xuất hoặc c
 
 ### Bước 11: Tái sử dụng và cải tiến
 
-Ở ticket tiếp theo, Agent Memory truy xuất kinh nghiệm liên quan và HolmesGPT sử dụng Skill phù hợp. Feedback mới tiếp tục cải thiện tìm kiếm, nội dung Skill và thứ tự gợi ý.
+Ở ticket tiếp theo, POM Memory truy xuất kinh nghiệm liên quan và HolmesGPT sử dụng Skill phù hợp. Feedback mới tiếp tục cải thiện tìm kiếm, nội dung Skill và thứ tự gợi ý.
 
 ## 10. Cấu trúc trí nhớ vận hành tối thiểu
 
@@ -187,12 +200,17 @@ Kỹ sư rà soát, sửa và phê duyệt Skill. PostOps Memory xuất hoặc c
 - Skill đã sử dụng, phiên bản và mức hữu ích.
 - Nội dung kỹ sư sửa hoặc bổ sung.
 - Người xác nhận và trạng thái kiểm duyệt.
+- Nguồn tạo kết luận: AI đề xuất, kỹ sư sửa hoặc kỹ sư cung cấp hoàn toàn.
+- Incident fingerprint gồm symptom family, trạng thái Kubernetes, exit code, event reason, log signature, failure layer và root-cause family.
+- Liên kết từ resolution tới message, tool result hoặc bằng chứng nguồn.
+
+Hệ thống lưu riêng hai lớp: lịch sử hỗ trợ có thể chứa giả thuyết sai và resolution đã được kỹ sư xác nhận. Chỉ lớp thứ hai được sử dụng như trí nhớ đáng tin cậy cho ticket mới.
 
 ## 11. Cơ chế để AI ngày càng hữu ích hơn
 
 ### Cấp độ 1 – Trí nhớ sự cố
 
-Ticket đã xử lý cung cấp ngữ cảnh cho ticket mới. AI ưu tiên giả thuyết từng xảy ra trong môi trường nội bộ nhưng vẫn phải kiểm chứng trên dữ liệu hiện tại.
+Ticket đã xử lý cung cấp ngữ cảnh cho ticket mới. Tìm kiếm diễn ra hai lần: lần đầu từ mô tả ticket để gợi ý ứng viên, lần sau từ bằng chứng HolmesGPT thu thập để xếp hạng lại. AI ưu tiên giả thuyết từng xảy ra nhưng vẫn phải kiểm chứng trên dữ liệu hiện tại.
 
 ### Cấp độ 2 – Skill vận hành
 
@@ -213,15 +231,15 @@ AI không tự thay đổi trọng số sau mỗi sự cố. Hệ thống hữu 
 ### Giai đoạn 0 – Chuẩn bị PoC (1–2 tuần)
 
 - Triển khai HolmesGPT và kết nối LiteLLM.
-- Triển khai TencentDB Agent Memory on-premise.
+- Triển khai Mem0 OSS với FastEmbed và Qdrant local hoặc PostgreSQL/pgvector để so sánh.
 - Cấp quyền chỉ đọc cho Kubernetes và Prometheus.
 - Chọn một cluster, hai loại sự cố và 10–20 ticket/kịch bản mẫu.
-- Kiểm chứng API, khả năng lưu phiên điều tra và cơ chế xuất/chuyển đổi Skill.
+- Kiểm chứng khả năng lưu phiên điều tra, tạo resolution do kỹ sư duyệt, tìm kiếm paraphrase/cross-project/hard-negative và xuất/chuyển đổi Skill.
 
 ### Giai đoạn 1 – PoC vòng lặp trí nhớ (3–6 tuần)
 
 - Xây giao diện PostOps Memory đọc ticket Redmine theo ID.
-- Tích hợp truy xuất trí nhớ từ TencentDB Agent Memory.
+- Tích hợp truy xuất ứng viên từ PostgreSQL và Mem0 OSS.
 - Gọi HolmesGPT qua HTTP API và hiển thị báo cáo có bằng chứng.
 - Thu nhận kết luận và feedback của kỹ sư.
 - Lưu phiên xử lý thành trí nhớ vận hành.
@@ -250,6 +268,10 @@ AI không tự thay đổi trọng số sau mỗi sự cố. Hệ thống hữu 
 - Thời gian tạo hồ sơ hậu kiểm và bản nháp Skill.
 - Tỷ lệ Skill được duyệt và tái sử dụng thành công.
 - Số bước tra cứu thủ công được giảm.
+- Số lượt trao đổi hoặc mức chỉnh sửa cần thiết trước khi kỹ sư xác nhận resolution.
+- Khả năng lưu đúng kết luận do kỹ sư cung cấp dù AI ban đầu trả lời sai.
+- Tỷ lệ false positive khi hai ticket cùng triệu chứng hoặc cùng câu chữ nhưng khác nguyên nhân.
+- Mức cải thiện retrieval sau khi bổ sung bằng chứng kỹ thuật từ HolmesGPT.
 
 Mục tiêu tham khảo:
 
@@ -276,7 +298,7 @@ Mục tiêu tham khảo:
 ### Giá trị đầu tư
 
 - Tận dụng Redmine, Kubernetes, Prometheus và LiteLLM hiện có.
-- Sử dụng HolmesGPT và TencentDB Agent Memory theo hướng mã nguồn mở, on-premise.
+- Sử dụng HolmesGPT, PostgreSQL và Mem0 OSS theo hướng mã nguồn mở, on-premise.
 - Không cần xây Data Warehouse lưu toàn bộ log/metric hoặc huấn luyện model trong PoC.
 - Kiểm chứng giá trị trên phạm vi nhỏ trước khi mở rộng.
 
@@ -286,12 +308,15 @@ Mục tiêu tham khảo:
 |---|---|
 | AI kết luận sai | Bắt buộc có bằng chứng; kỹ sư xác nhận nguyên nhân cuối cùng |
 | Trí nhớ sai ảnh hưởng lần sau | Chỉ dùng nội dung đã xác nhận; lưu nguồn, người duyệt và phiên bản |
+| Cùng câu chữ nhưng khác nguyên nhân | Chỉ coi semantic search là bước lấy ứng viên; xếp hạng lại bằng incident fingerprint và bằng chứng hiện tại |
+| AI sai nhưng kỹ sư đã tìm ra đáp án | Cho phép kỹ sư viết lại resolution; lưu câu trả lời đã xác nhận thay cho kết luận AI |
+| Hội thoại dài làm trôi ngữ cảnh | Duy trì case state, raw conversation và bản tổng hợp có liên kết nguồn |
 | Skill tạo từ cách xử lý tình thế | Rà soát, giới hạn phạm vi và phê duyệt trước khi phát hành |
 | Đề xuất hành động nguy hiểm | PoC chỉ đọc; Skill nêu hành động bị cấm và điều kiện chuyển cấp |
 | Ticket thiếu thông tin | Cho phép bổ sung cluster, namespace và khoảng thời gian |
 | Truy xuất nhầm sự cố | Hiển thị nguồn; kỹ sư chọn hoặc từ chối kết quả |
 | Dữ liệu nhạy cảm đi vào prompt | On-premise, che dữ liệu nhạy cảm và áp dụng retention |
-| Agent Memory chưa xuất trực tiếp định dạng HolmesGPT | PostOps Memory chuyển đổi sang `SKILL.md` |
+| Mem0 không quản lý định dạng Skill của HolmesGPT | PostOps Memory tạo, phiên bản hóa và xuất `SKILL.md` từ resolution đã duyệt |
 | Telemetry quá lớn | Truy vấn tại nguồn, giới hạn thời gian và chỉ lưu bằng chứng cần thiết |
 
 ## 16. Phân tích theo sáu chiếc mũ tư duy
@@ -300,7 +325,7 @@ Mục tiêu tham khảo:
 
 - Đơn vị đã có Redmine, Kubernetes, Prometheus và LiteLLM on-premise.
 - HolmesGPT có khả năng điều tra Kubernetes/Prometheus và dùng Skill tùy chỉnh.
-- TencentDB Agent Memory cung cấp nền tảng lưu và truy xuất trí nhớ AI Agent.
+- PostgreSQL cung cấp nguồn dữ liệu nghiệp vụ; Mem0 OSS có thể cung cấp trích xuất và truy xuất trí nhớ ngữ nghĩa on-premise.
 - PoC không cần lưu toàn bộ telemetry hoặc fine-tune model.
 
 ### Mũ đỏ – Cảm nhận
@@ -314,7 +339,7 @@ Mục tiêu tham khảo:
 - Ticket hoặc kết luận có thể thiếu chính xác.
 - AI có thể truy xuất sai kinh nghiệm hoặc suy diễn quá mức.
 - Skill sai sẽ ảnh hưởng các lần xử lý sau.
-- Khả năng chuyển đổi Skill giữa Agent Memory và HolmesGPT cần được kiểm chứng.
+- Khả năng tạo Skill đúng phạm vi từ resolution đã duyệt và cung cấp cho HolmesGPT cần được kiểm chứng.
 
 ### Mũ vàng – Lợi ích
 
@@ -341,7 +366,7 @@ Mục tiêu tham khảo:
 
 - Redmine định danh sự cố thực tế.
 - HolmesGPT điều tra dữ liệu hiện tại.
-- TencentDB Agent Memory lưu và truy xuất kinh nghiệm đã xác nhận.
+- PostgreSQL lưu kinh nghiệm đã xác nhận; Mem0 OSS hoặc pgvector lập chỉ mục để truy xuất ứng viên tương đồng.
 - PostOps Memory thu nhận lựa chọn và feedback của kỹ sư.
 - Kinh nghiệm được chuẩn hóa thành Skill, phê duyệt và tái sử dụng.
 - Dữ liệu sử dụng tiếp tục cải thiện tìm kiếm, xếp hạng và chất lượng Skill.
@@ -355,7 +380,7 @@ AI ngày càng phù hợp với môi trường của Tổng công ty thông qua 
 PoC cần chứng minh ba năng lực:
 
 1. HolmesGPT điều tra ticket bằng dữ liệu Kubernetes và Prometheus thực tế.
-2. TencentDB Agent Memory lưu và truy xuất đúng kinh nghiệm xử lý liên quan.
+2. PostgreSQL và lớp truy xuất local lưu đúng resolution do kỹ sư xác nhận, đồng thời tìm được kinh nghiệm tương đồng mà không nhầm các trường hợp cùng triệu chứng nhưng khác nguyên nhân.
 3. Kinh nghiệm được chuyển thành Skill, phê duyệt và tái sử dụng để nâng chất lượng xử lý sự cố tiếp theo.
 
 Nếu đạt KPI, giải pháp được mở rộng tuần tự sang hệ thống log, Zabbix, OpenStack, VMware và các nền tảng nghiệp vụ; đồng thời sử dụng feedback để cải thiện xếp hạng và xây model chuyên biệt trong tương lai.

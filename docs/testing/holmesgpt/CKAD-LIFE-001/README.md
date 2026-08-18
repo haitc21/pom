@@ -17,8 +17,8 @@ Deployment `ckad-life-001` trong namespace tạm thời được cấu hình đ�
 
 | Lần chạy | Cấu hình | Kết quả | Điểm | Đánh giá |
 |---|---|---|---:|---|
-| [Run A](run-a-holmesgpt.md) | Chỉ HolmesGPT, không Agent Memory | Đã hoàn tất | 88/100 | Đúng root cause và bằng chứng; có sai lệch nhỏ về Pod phase tại thời điểm trả lời |
-| [Run B](run-b-holmesgpt-memory.md) | HolmesGPT + TencentDB Agent Memory | Chưa thực hiện | — | Chờ chạy cùng prompt, model và oracle tương đương Run A |
+| [Run A](run-a-holmesgpt.md) | Chỉ HolmesGPT, không POM Memory | Đã hoàn tất | 88/100 | Đúng root cause và bằng chứng; có sai lệch nhỏ về Pod phase tại thời điểm trả lời |
+| [Run B](run-b-holmesgpt-memory.md) | HolmesGPT + POM Memory (Mem0 OSS) | Chưa thực hiện | — | Chờ chạy cùng prompt, model và oracle tương đương Run A |
 
 ## So sánh cần thực hiện sau Run B
 
@@ -27,4 +27,3 @@ Deployment `ckad-life-001` trong namespace tạm thời được cấu hình đ�
 - Số tool call, token và thời gian phản hồi.
 - Memory có truy hồi đúng case hay đưa vào thông tin không phù hợp.
 - Khả năng giữ đúng namespace, Pod, image và điều kiện áp dụng.
-

@@ -1,14 +1,14 @@
-# HolmesGPT and Agent Memory Evaluation Implementation Plan
+# HolmesGPT and POM Memory Evaluation Implementation Plan
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Story/Task ID:** POSTOPS-EVAL-001
 
-**Goal:** Build a reproducible, safely isolated Kubernetes incident evaluation suite that compares HolmesGPT alone against HolmesGPT with TencentDB Agent Memory using paired cases and a fixed scoring rubric.
+**Goal:** Build a reproducible, safely isolated Kubernetes incident evaluation suite that compares HolmesGPT alone against HolmesGPT with local POM Memory using paired cases and a fixed scoring rubric.
 
 **Architecture:** Declarative case files drive setup, fault injection, oracle collection, HolmesGPT requests, recovery, and cleanup. Raw JSONL results remain immutable; deterministic scoring and blinded human review generate comparison reports. Tier 0–2 run in disposable namespaces, while explicitly approved Tier 3 cases affect only one worker with snapshot and automatic rollback.
 
-**Tech Stack:** Kubernetes v1.35.7, Calico, containerd, Helm, HolmesGPT 0.39.0 HTTP API, Prometheus, Loki, LiteLLM, TencentDB Agent Memory V3 SDK/API, Bash, Python 3.12, JSON Schema, PyYAML, pytest.
+**Tech Stack:** Kubernetes v1.35.7, Calico, containerd, Helm, HolmesGPT 0.39.0 HTTP API, Prometheus, Loki, LiteLLM, PostgreSQL, Mem0 OSS, FastEmbed, Qdrant embedded, Bash, Python 3.12, JSON Schema, PyYAML, pytest.
 
 **Spec:** `docs/testing/holmesgpt-memory-evaluation.md`
 
@@ -36,23 +36,23 @@ No `.codegraph/` directory exists, so CodeGraph has no indexed blast-radius data
 - Case contract version: `postops.dev/holmes-eval/v1alpha1`.
 - Result record version: `postops.dev/holmes-result/v1alpha1` in append-only JSONL.
 - HolmesGPT contract: `POST http://holmesgpt.k8s.local/api/chat` with a pinned model name.
-- Memory contract: TencentDB Agent Memory V3, with `team_id`, `agent_id`, `user_id`, `session_id`, and `task_id` recorded per request.
+- Memory contract: PostgreSQL stores engineer-approved resolutions; Mem0 indexes them with `user_id`, `agent_id`, `run_id`, `case_id`, `resolution_id`, `approval_status`, provenance, and content hash.
 - Breaking schema changes require a new contract version; adding optional fields remains backward compatible.
 
 ## Threat and security scope
 
 - Validate case IDs, paths, namespaces, resource names, and timeout ranges before passing them to shell or Kubernetes.
 - Do not execute commands returned by HolmesGPT.
-- Redact Kubernetes Secret data, authorization headers, Memory API keys, LiteLLM keys, private IP metadata not needed for scoring, and raw logs beyond selected evidence.
+- Redact Kubernetes Secret data, authorization headers, LiteLLM keys, private IP metadata not needed for scoring, and raw logs beyond selected evidence.
 - Prevent namespace escape and arbitrary manifest paths.
-- Keep Memory tenants and sessions isolated; include provenance in every approved memory record.
+- Keep Mem0 users, agents, and runs isolated; include PostgreSQL provenance in every approved memory record.
 - Secret-scan the diff and generated runbook before completion.
 
 ## Proposed commit boundaries
 
 1. `test: define HolmesGPT evaluation contracts and controls`
 2. `feat: add safe incident harness and CKAD cases`
-3. `feat: add Agent Memory paired evaluation`
+3. `feat: add POM Memory paired evaluation`
 4. `test: add controlled CKA scenarios and reporting`
 5. `docs: add HolmesGPT evaluation runbook`
 
@@ -202,7 +202,7 @@ No Git mutation is authorized by this plan.
 - [ ] Implement paired Run B minus Run A statistics, bootstrap confidence intervals, and cohort summaries.
 - [ ] Rerun scoring tests and manually inspect one generated report.
 
-### Task 8: Integrate TencentDB Agent Memory without contaminating holdouts
+### Task 8: Integrate local POM Memory without contaminating holdouts
 
 **Files:**
 - Create: `scripts/holmes-eval/memory-write.py`
@@ -211,13 +211,13 @@ No Git mutation is authorized by this plan.
 - Create: `tests/holmesgpt/test_memory.py`
 
 **Interfaces:**
-- Consumes: approved training-case summaries and V3 isolation identifiers.
+- Consumes: engineer-approved PostgreSQL resolutions and local memory isolation identifiers.
 - Produces: redacted approved memories, top-k retrieval records, and an injected context block with source/applicability metadata.
 
 - [ ] Write RED tests for tenant/session isolation, holdout exclusion, unapproved-memory rejection, secret redaction, duplicate write idempotency, and top-k provenance.
 - [ ] Run `rtk pytest tests/holmesgpt/test_memory.py -q`; observe expected failures.
-- [ ] Implement asynchronous V3 recall/write using Python 3.12 and credentials supplied only through environment variables.
-- [ ] Use active recall before HolmesGPT plus explicit tool-recall only if the adapter contract supports it; record which path supplied each memory.
+- [ ] Implement asynchronous Mem0 recall/write using Python 3.12, FastEmbed multilingual embeddings, and Qdrant embedded storage under the task-specific data path.
+- [ ] Use low-trust active recall before HolmesGPT, then rerank after live evidence is available; resolve every candidate to an approved PostgreSQL record and record which path supplied each memory.
 - [ ] Seed only approved training records and verify exact, analogous, negative-transfer, and novel queries retrieve the expected relevance classes.
 - [ ] Rerun focused tests and perform a live recall/write smoke test with disposable experiment identifiers.
 
