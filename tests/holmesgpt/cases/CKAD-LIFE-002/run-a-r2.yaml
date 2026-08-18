@@ -1,0 +1,23 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: holmes-eval-ckad-life-002-r2-a
+  labels: {postops.poc/test: "true", postops.poc/case-id: CKAD-LIFE-002-R2, postops.poc/run-id: run-a-iterative}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ckad-life-002
+  namespace: holmes-eval-ckad-life-002-r2-a
+  labels: {postops.poc/test: "true", postops.poc/case-id: CKAD-LIFE-002-R2}
+spec:
+  replicas: 1
+  selector: {matchLabels: {app: ckad-life-002}}
+  template:
+    metadata: {labels: {app: ckad-life-002, postops.poc/test: "true", postops.poc/case-id: CKAD-LIFE-002-R2}}
+    spec:
+      nodeSelector: {kubernetes.io/hostname: k8s03}
+      containers:
+        - name: nginx
+          image: docker.io/library/nginx:99.99.99-postops-invalid
+          imagePullPolicy: Always

@@ -16,6 +16,15 @@ Bảng tổng hợp các bài test đánh giá độ chính xác và hiệu qu�
 | [CKAD-CONF-002 — Secret thiếu key](CKAD-CONF-002/) | [Đã chạy — 95/100](CKAD-CONF-002/run-a-holmesgpt.md) | [Đã chạy — 100/100](CKAD-CONF-002/run-b-holmesgpt-memory.md) | Run A: ~2m05s; Run B: ~2m20s | `secretKeyRef` dùng `MISSING_KEY` không tồn tại trong `app-secret`; khôi phục key hoặc sửa tham chiếu sau khi duyệt |
 | [CKAD-CONF-003 — Ghi đè command/args sai](CKAD-CONF-003/) | [Đã chạy — 95/100](CKAD-CONF-003/run-a-holmesgpt.md) | [Đã chạy — 100/100](CKAD-CONF-003/run-b-holmesgpt-memory.md) | Run A: ~2m05s; Run B: ~2m20s | `exec /missing/start` không tồn tại, exit 127 và BackOff; xóa command/args hoặc sửa command hợp lệ |
 
+## Round 2 — iterative human-in-the-loop
+
+| Test/Run | Round 1 | Round 2 | Số vòng | Ghi chú |
+|---|---:|---:|---:|---|
+| [CKAD-LIFE-001 Run A](CKAD-LIFE-001/run-a-r2-iterative.md) | 88/100 | **100/100** | 4 | HolmesGPT yêu cầu lệnh; kỹ sư gửi output, phát hiện `set image` không xóa command/args, sau đó patch và xác minh rollout |
+| [CKAD-LIFE-002 Run A](CKAD-LIFE-002/run-a-r2-iterative.md) | 86/100 | 85/100 | 4 | Iteration xác nhận DNS/egress lỗi; vẫn còn overclaim rằng image tag có/không tồn tại khi registry không reachable |
+| [CKAD-LIFE-002 Run B](CKAD-LIFE-002/run-b-r2-iterative.md) | 90/100 | **100/100** | 3 | Memory gợi ý kiểm tra; output `docker pull not found` buộc HolmesGPT tách tag invalid khỏi DNS node |
+| [CKAD-LIFE-001 Run B](CKAD-LIFE-001/run-b-r2-iterative.md) | 100/100 | **100/100** | 3 | Chạy lại do test có Run A dưới 100; memory được kiểm chứng, remediation xóa command/args và rollout thành công |
+
 ## Quy ước
 
 - `run-a-holmesgpt.md`: lần chạy chỉ dùng HolmesGPT, không có bộ nhớ được truy hồi.
