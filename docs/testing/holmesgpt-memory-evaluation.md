@@ -294,6 +294,9 @@ KVM snapshot restore is the authoritative rollback for VM-level tests. Kubernete
 ```text
 tests/holmesgpt/
 ├── README.md
+├── <case-id>/README.md
+├── <case-id>/run-a-holmesgpt.md
+├── <case-id>/run-b-holmesgpt-memory.md
 ├── schema/case.schema.json
 ├── cases/<category>/<case-id>.yaml
 ├── manifests/<case-id>/{setup,inject,recover}/
