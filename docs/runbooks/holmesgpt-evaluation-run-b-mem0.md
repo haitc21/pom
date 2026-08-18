@@ -1,7 +1,7 @@
 # HolmesGPT Evaluation — Run B with local Mem0
 
 **Date:** 2026-08-18
-**Mode:** HolmesGPT + POM Memory (Mem0 OSS)
+**Mode:** HolmesGPT + AIC Memory (Mem0 OSS)
 **Cluster:** `k8s-poc` / Kubernetes `v1.35.7`
 **Case:** `CKAD-LIFE-001` — container startup failure / CrashLoopBackOff
 **Snapshot set:** reused `poc-eval-20260818` on all five PoC VMs

@@ -1,8 +1,8 @@
-# CKAD-LIFE-001 — Run B: HolmesGPT + POM Memory (Mem0 OSS)
+# CKAD-LIFE-001 — Run B: HolmesGPT + AIC Memory (Mem0 OSS)
 
 **Ngày chạy:** 2026-08-18
 **Trạng thái:** Đã hoàn tất
-**Mode:** HolmesGPT + POM Memory (Mem0 OSS)
+**Mode:** HolmesGPT + AIC Memory (Mem0 OSS)
 **Runtime:** Python 3.12 venv trên host; Mem0 2.0.18, FastEmbed 0.8.0, Qdrant embedded
 **Snapshot:** dùng campaign snapshot `poc-eval-20260818`
 **Namespace:** `holmes-eval-ckad-life-001-run-b` (đã cleanup)

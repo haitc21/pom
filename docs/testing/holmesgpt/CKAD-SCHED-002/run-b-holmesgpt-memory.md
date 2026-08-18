@@ -1,4 +1,4 @@
-# CKAD-SCHED-002 — Run B: HolmesGPT + POM Memory (Mem0 OSS)
+# CKAD-SCHED-002 — Run B: HolmesGPT + AIC Memory (Mem0 OSS)
 
 **Namespace:** `holmes-eval-ckad-sched-002-run-b`
 **Memory:** resolution affinity đã duyệt được seed `infer=False`

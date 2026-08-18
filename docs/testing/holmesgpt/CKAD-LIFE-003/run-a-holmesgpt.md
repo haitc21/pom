@@ -1,7 +1,7 @@
 # CKAD-LIFE-003 — Run A: HolmesGPT only
 
 **Ngày chạy:** 2026-08-18
-**Mode:** HolmesGPT only; không truy hồi POM Memory
+**Mode:** HolmesGPT only; không truy hồi AIC Memory
 **Namespace:** `holmes-eval-ckad-life-003-run-a`
 
 ## Fault và oracle

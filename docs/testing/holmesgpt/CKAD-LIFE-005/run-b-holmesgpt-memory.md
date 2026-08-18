@@ -1,4 +1,4 @@
-# CKAD-LIFE-005 — Run B: HolmesGPT + POM Memory (Mem0 OSS)
+# CKAD-LIFE-005 — Run B: HolmesGPT + AIC Memory (Mem0 OSS)
 
 **Namespace:** `holmes-eval-ckad-life-005-run-b`
 **Memory:** resolution OOM Run A được seed `infer=False`

@@ -1,16 +1,16 @@
-# HolmesGPT and POM Memory PoC Evaluation Design
+# HolmesGPT and AIC Memory PoC Evaluation Design
 
 ## 1. Objective
 
-Measure how effectively HolmesGPT assists a DevOps Engineer during reproducible Kubernetes incidents, then measure the incremental effect of local POM Memory using the same model, cluster, prompts, observability sources, and scoring rules.
+Measure how effectively HolmesGPT assists a DevOps Engineer during reproducible Kubernetes incidents, then measure the incremental effect of local AIC Memory using the same model, cluster, prompts, observability sources, and scoring rules.
 
 The experiment answers five questions:
 
 1. Does HolmesGPT identify the actual root cause rather than only restating the symptom?
 2. Does it cite evidence that exists in Kubernetes, Prometheus, or Loki?
 3. Does it propose a correct, safe remediation and a valid recovery check?
-4. Does POM Memory improve repeated and analogous incidents without causing stale-memory, anchoring, or false matches between the same symptom and different root causes?
-5. Can POM preserve and reuse the engineer's confirmed resolution when HolmesGPT's initial answer is incomplete or wrong?
+4. Does AIC Memory improve repeated and analogous incidents without causing stale-memory, anchoring, or false matches between the same symptom and different root causes?
+5. Can AIC preserve and reuse the engineer's confirmed resolution when HolmesGPT's initial answer is incomplete or wrong?
 
 Redmine integration and autonomous remediation are out of scope. HolmesGPT remains read-only.
 
@@ -53,7 +53,7 @@ isolated namespace holmes-eval-<case-id>
           └── Loki logs ───────────────┘
                                       │
                      baseline: no recalled memory
-                     memory: approved POM recall injected
+                     memory: approved AIC recall injected
                                       │
                                       ▼
 ground truth + rubric ─────────── deterministic and blinded scoring
@@ -190,7 +190,7 @@ Only engineer-confirmed Run A cases assigned to the training partition are writt
 
 Use stable isolation dimensions: `user_id=postops-poc`, `agent_id=holmes-k8s-poc`, and `run_id=<case-id>-<run-id>`. Store `case_id`, `resolution_id`, `incident_family`, `approval_status`, `cluster_scope`, and `skill_version` as metadata. Memory must never be populated from held-out, negative-control, unapproved assistant answers, or raw conversation text.
 
-### Run B — HolmesGPT plus POM Memory (Mem0 OSS)
+### Run B — HolmesGPT plus AIC Memory (Mem0 OSS)
 
 1. Restore each case to its identical pre-injection baseline and reuse the Run A random seed with a separately recorded order.
 2. Keep the same model and HolmesGPT configuration.
@@ -261,7 +261,7 @@ Scores are clamped to 0–100. A case passes at 75, but root-cause correctness m
 
 ## 8. Acceptance criteria
 
-The PoC supports the proposed value of POM Memory only if all conditions hold:
+The PoC supports the proposed value of AIC Memory only if all conditions hold:
 
 - Baseline Tier 0–1 mean accuracy is at least 70/100.
 - Run B improves paired mean accuracy by at least 10 points for exact and analogous cohorts.
@@ -270,7 +270,7 @@ The PoC supports the proposed value of POM Memory only if all conditions hold:
 - Novel holdout accuracy regresses by no more than 5 points.
 - At least 90% of recalled claims include the correct source case and applicability scope.
 - Every reusable memory resolves to an engineer-approved PostgreSQL resolution; no unapproved assistant conclusion is retrieved.
-- POM preserves the engineer's final root cause and effective remediation even when they differ from HolmesGPT's initial answer.
+- AIC preserves the engineer's final root cause and effective remediation even when they differ from HolmesGPT's initial answer.
 - All low-risk cases clean up successfully; Tier 3 restores all nodes to `Ready` within 5 minutes.
 
 Report confidence intervals and every per-case result. Do not declare success from the aggregate alone.

@@ -17,8 +17,8 @@ Deployment `ckad-life-001` trong namespace tạm thời được cấu hình đ�
 
 | Lần chạy | Cấu hình | Kết quả | Điểm | Đánh giá |
 |---|---|---|---:|---|
-| [Run A](run-a-holmesgpt.md) | Chỉ HolmesGPT, không POM Memory | Đã hoàn tất | 88/100 | Đúng root cause và bằng chứng; có sai lệch nhỏ về Pod phase tại thời điểm trả lời |
-| [Run B](run-b-holmesgpt-memory.md) | HolmesGPT + POM Memory (Mem0 OSS) | Đã hoàn tất | 100/100 | Mem0 recall đúng resolution đã duyệt; HolmesGPT xác minh độc lập bằng chứng hiện tại |
+| [Run A](run-a-holmesgpt.md) | Chỉ HolmesGPT, không AIC Memory | Đã hoàn tất | 88/100 | Đúng root cause và bằng chứng; có sai lệch nhỏ về Pod phase tại thời điểm trả lời |
+| [Run B](run-b-holmesgpt-memory.md) | HolmesGPT + AIC Memory (Mem0 OSS) | Đã hoàn tất | 100/100 | Mem0 recall đúng resolution đã duyệt; HolmesGPT xác minh độc lập bằng chứng hiện tại |
 
 ## So sánh sau Run B
 

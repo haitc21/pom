@@ -1,7 +1,7 @@
 # CKAD-LIFE-001 — Run A: HolmesGPT only
 
 **Ngày chạy:** 2026-08-18  
-**Mode:** HolmesGPT only; không truy hồi hoặc ghi POM Memory
+**Mode:** HolmesGPT only; không truy hồi hoặc ghi AIC Memory
 **Snapshot:** `poc-eval-20260818` trên cả 5 VM  
 **Namespace:** `holmes-eval-ckad-life-001`
 

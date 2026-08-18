@@ -1,4 +1,4 @@
-# CKAD-CONF-002 — Run B (HolmesGPT + POM Memory)
+# CKAD-CONF-002 — Run B (HolmesGPT + AIC Memory)
 
 ## Memory
 

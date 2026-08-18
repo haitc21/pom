@@ -1,4 +1,4 @@
-# CKAD-LIFE-004 — Run B: HolmesGPT + POM Memory (Mem0 OSS)
+# CKAD-LIFE-004 — Run B: HolmesGPT + AIC Memory (Mem0 OSS)
 
 **Namespace:** `holmes-eval-ckad-life-004-run-b`
 **Memory:** resolution Run A được seed `infer=False`; top recall score `0.2574080986747504`

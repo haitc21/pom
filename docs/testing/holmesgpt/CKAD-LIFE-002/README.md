@@ -5,7 +5,7 @@
 | Lần chạy | Phạm vi | Trạng thái | Điểm | Nhận xét |
 |---|---|---|---:|---|
 | [Run A](run-a-holmesgpt.md) | HolmesGPT only | Hoàn tất | 86/100 | Đúng image reference, nhưng loại trừ DNS quá chắc chắn dù PoC đang offline registry |
-| [Run B](run-b-holmesgpt-memory.md) | HolmesGPT + POM Memory (Mem0 OSS) | Hoàn tất | 90/100 | Memory recall đúng resolution; vẫn lặp lại overclaim về DNS, chưa chứng minh cải thiện root cause |
+| [Run B](run-b-holmesgpt-memory.md) | HolmesGPT + AIC Memory (Mem0 OSS) | Hoàn tất | 90/100 | Memory recall đúng resolution; vẫn lặp lại overclaim về DNS, chưa chứng minh cải thiện root cause |
 
 ## Oracle
 

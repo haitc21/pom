@@ -2,7 +2,7 @@
 
 Bảng tổng hợp các bài test đánh giá độ chính xác và hiệu quả của HolmesGPT trong Kubernetes PoC.
 
-| Tình huống | HolmesGPT | HolmesGPT + POM Memory | Thời gian thực hiện | Đáp án |
+| Tình huống | HolmesGPT | HolmesGPT + AIC Memory | Thời gian thực hiện | Đáp án |
 |---|---|---|---|---|
 | [CKAD-LIFE-001 — CrashLoopBackOff do command/args làm container thoát](CKAD-LIFE-001/) | [Đã chạy — 88/100](CKAD-LIFE-001/run-a-holmesgpt.md) | [Đã chạy — 100/100](CKAD-LIFE-001/run-b-holmesgpt-memory.md) | Chưa đo đồng nhất | Container thoát với `exit 1` vì command/args cấu hình lỗi; cần khôi phục command chạy ứng dụng |
 | [CKAD-LIFE-002 — ImagePullBackOff do image tag không hợp lệ](CKAD-LIFE-002/) | [Đã chạy — 86/100](CKAD-LIFE-002/run-a-holmesgpt.md) | [Đã chạy — 90/100](CKAD-LIFE-002/run-b-holmesgpt-memory.md) | Run A: ~1m45s; Run B: ~1m58s | Image reference không hợp lệ/không khả dụng; thay bằng tag đã phê duyệt và xác minh Pod Ready |
@@ -28,7 +28,7 @@ Bảng tổng hợp các bài test đánh giá độ chính xác và hiệu qu�
 ## Quy ước
 
 - `run-a-holmesgpt.md`: lần chạy chỉ dùng HolmesGPT, không có bộ nhớ được truy hồi.
-- `run-b-holmesgpt-memory.md`: lần chạy HolmesGPT có POM Memory triển khai bằng Mem0 OSS và resolution đã duyệt.
+- `run-b-holmesgpt-memory.md`: lần chạy HolmesGPT có AIC Memory triển khai bằng Mem0 OSS và resolution đã duyệt.
 - Điểm hiện tại là điểm provisional theo rubric trong [thiết kế đánh giá](../holmesgpt-memory-evaluation.md).
 - Thời gian là end-to-end từ log `Received: /api/chat request` đến log HTTP 200, chỉ tính thời gian HolmesGPT xử lý; chưa bao gồm dựng fault, cleanup hoặc thời gian Mem0 seed.
 - Run B đã được chạy và chấm độc lập; các cohort paraphrase, analogous và hard-negative đầy đủ vẫn chưa chạy. CKAD-LIFE-002 cho thấy cần chấm riêng lỗi overconfidence khi registry/DNS cũng có thể gây cùng triệu chứng.

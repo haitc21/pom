@@ -1,4 +1,4 @@
-# CKAD-LIFE-001 — Run B Round 2 (điều tra lặp + POM Memory)
+# CKAD-LIFE-001 — Run B Round 2 (điều tra lặp + AIC Memory)
 
 ## Kết quả
 

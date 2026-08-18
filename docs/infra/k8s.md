@@ -131,7 +131,7 @@ No separate load-balancer VM is required for this isolated PoC. For production, 
 - `k8s01` reboot recovery returned all nodes to `Ready`.
 - Disposable negative-path workloads were removed; no `poc-test` namespace remains.
 - The retained resources are the three VMs, their disks, and `postops-k8s`.
-- Redmine and PostOps Memory integration are out of scope for this infrastructure test.
+- Redmine and AI Incident Copilot (AIC) integration are out of scope for this infrastructure test.
 
 ## NFS persistent storage
 

@@ -1,4 +1,4 @@
-# CKAD-SCHED-001 — Run B: HolmesGPT + POM Memory (Mem0 OSS)
+# CKAD-SCHED-001 — Run B: HolmesGPT + AIC Memory (Mem0 OSS)
 
 **Namespace:** `holmes-eval-ckad-sched-001-run-b`
 **Memory:** resolution đã duyệt nêu rõ `cpu: "100"` là 100 cores, không phải 100m

@@ -1,7 +1,7 @@
 # HolmesGPT Evaluation — Run A
 
 **Date:** 2026-08-18  
-**Mode:** HolmesGPT only; no POM Memory recall or write
+**Mode:** HolmesGPT only; no AIC Memory recall or write
 **Cluster:** `k8s-poc` / Kubernetes `v1.35.7`  
 **Case:** `CKAD-LIFE-001` — container startup failure / CrashLoopBackOff  
 **Snapshot set:** `poc-eval-20260818` on `k8s01`, `k8s02`, `k8s03`, `k8s-storage`, and `k8s-lb`

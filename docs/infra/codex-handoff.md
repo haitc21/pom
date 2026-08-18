@@ -1,10 +1,10 @@
-# Codex handoff – PostOps Memory PoC
+# Codex handoff – AI Incident Copilot (AIC) PoC
 
 Last updated: 2026-08-17
 
 ## Current objective
 
-Validate the PostOps Memory idea: use HolmesGPT for read-only Kubernetes/observability investigation, PostgreSQL for authoritative business records, and local POM Memory for approved operational recall. Redmine integration is intentionally not implemented yet.
+Validate the AI Incident Copilot (AIC) idea: use HolmesGPT for read-only Kubernetes/observability investigation, PostgreSQL for authoritative business records, and local AIC Memory for approved operational recall. Redmine integration is intentionally not implemented yet.
 
 ## PoC state
 
@@ -63,7 +63,7 @@ Validate the PostOps Memory idea: use HolmesGPT for read-only Kubernetes/observa
 
 1. Start the five PoC VMs and verify `kubectl get nodes`.
 2. Verify HolmesGPT through `holmesgpt.k8s.local`.
-3. Prototype a small `PostOps Memory Adapter` around HolmesGPT `/api/chat`.
+3. Prototype a small `AI Incident Copilot (AIC) Adapter` around HolmesGPT `/api/chat`.
 4. Seed 10–20 approved `CrashLoopBackOff`/`OOMKilled` cases.
 5. Compare baseline investigation versus `recall → investigate → feedback → write memory`.
 6. Evaluate Mem0 OSS as an optional extraction/retrieval layer against direct PostgreSQL/pgvector search before committing to a production architecture.

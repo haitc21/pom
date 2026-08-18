@@ -1,10 +1,10 @@
-# HolmesGPT and POM Memory Evaluation Implementation Plan
+# HolmesGPT and AIC Memory Evaluation Implementation Plan
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Story/Task ID:** POSTOPS-EVAL-001
 
-**Goal:** Build a reproducible, safely isolated Kubernetes incident evaluation suite that compares HolmesGPT alone against HolmesGPT with local POM Memory using paired cases and a fixed scoring rubric.
+**Goal:** Build a reproducible, safely isolated Kubernetes incident evaluation suite that compares HolmesGPT alone against HolmesGPT with local AIC Memory using paired cases and a fixed scoring rubric.
 
 **Architecture:** Declarative case files drive setup, fault injection, oracle collection, HolmesGPT requests, recovery, and cleanup. Raw JSONL results remain immutable; deterministic scoring and blinded human review generate comparison reports. Tier 0–2 run in disposable namespaces, while explicitly approved Tier 3 cases affect only one worker with snapshot and automatic rollback.
 
@@ -52,7 +52,7 @@ No `.codegraph/` directory exists, so CodeGraph has no indexed blast-radius data
 
 1. `test: define HolmesGPT evaluation contracts and controls`
 2. `feat: add safe incident harness and CKAD cases`
-3. `feat: add POM Memory paired evaluation`
+3. `feat: add AIC Memory paired evaluation`
 4. `test: add controlled CKA scenarios and reporting`
 5. `docs: add HolmesGPT evaluation runbook`
 
@@ -202,7 +202,7 @@ No Git mutation is authorized by this plan.
 - [ ] Implement paired Run B minus Run A statistics, bootstrap confidence intervals, and cohort summaries.
 - [ ] Rerun scoring tests and manually inspect one generated report.
 
-### Task 8: Integrate local POM Memory without contaminating holdouts
+### Task 8: Integrate local AIC Memory without contaminating holdouts
 
 **Files:**
 - Create: `scripts/holmes-eval/memory-write.py`

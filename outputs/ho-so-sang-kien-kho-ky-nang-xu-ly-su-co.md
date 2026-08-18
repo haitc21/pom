@@ -5,19 +5,19 @@
 | Trường thông tin | Nội dung đề xuất |
 |---|---|
 | Tên sáng kiến | Xây dựng nền tảng trí nhớ vận hành và hỗ trợ xử lý sự cố bằng AI |
-| Tên dự án tiếng Anh | **PostOps Memory** |
-| Tên mô tả | **PostOps Memory – Nền tảng trí nhớ và hỗ trợ xử lý sự cố vận hành thông minh** |
+| Tên dự án tiếng Anh | **AI Incident Copilot (AIC)** |
+| Tên mô tả | **AI Incident Copilot (AIC) – Nền tảng trí nhớ và hỗ trợ xử lý sự cố vận hành thông minh** |
 | Đơn vị | Phòng Điện toán đám mây – Trung tâm CNTT |
 | Phạm vi PoC | Kubernetes, Prometheus và ticket Redmine |
 | Công nghệ chính | PostgreSQL, Mem0 OSS, HolmesGPT và LiteLLM on-premise |
 
 ## 2. Tóm tắt ý tưởng
 
-**PostOps Memory** là trợ lý có trí nhớ cho DevOps Engineer, tích lũy kinh nghiệm từ các sự cố thực tế và tái sử dụng những kết luận đã được kỹ sư xác nhận để hỗ trợ điều tra các sự cố tiếp theo. POM không thay thế quyết định chuyên môn và không bắt buộc phải đưa ra đáp án đúng ngay ở lần trả lời đầu tiên.
+**AI Incident Copilot (AIC)** là trợ lý có trí nhớ cho DevOps Engineer, tích lũy kinh nghiệm từ các sự cố thực tế và tái sử dụng những kết luận đã được kỹ sư xác nhận để hỗ trợ điều tra các sự cố tiếp theo. AIC không thay thế quyết định chuyên môn và không bắt buộc phải đưa ra đáp án đúng ngay ở lần trả lời đầu tiên.
 
 Khi có ticket mới, giải pháp lấy nội dung từ Redmine, tìm các sự cố và Skill tương tự trong kho trí nhớ rồi cung cấp ngữ cảnh cho HolmesGPT. HolmesGPT truy vấn dữ liệu hiện tại từ Kubernetes và Prometheus ở chế độ chỉ đọc để đề xuất giả thuyết, bước kiểm tra, bằng chứng và hướng xử lý. Kỹ sư có thể tiếp tục trao đổi nhiều vòng, bổ sung kết quả kiểm tra hoặc tự đưa ra nguyên nhân và cách xử lý chính xác cuối cùng.
 
-Sau khi ticket hoàn tất, POM tổng hợp các bước điều tra và lệnh nằm rải rác trong cuộc trò chuyện thành một bản nháp resolution. Kỹ sư sửa hoặc thay thế bản nháp, xác nhận nguyên nhân, cách xử lý và cách kiểm tra phục hồi. PostgreSQL lưu lịch sử cùng bản resolution đã duyệt; chỉ bản đã xác nhận mới được lập chỉ mục bằng Mem0 OSS và dùng để tạo hoặc cập nhật Skill.
+Sau khi ticket hoàn tất, AIC tổng hợp các bước điều tra và lệnh nằm rải rác trong cuộc trò chuyện thành một bản nháp resolution. Kỹ sư sửa hoặc thay thế bản nháp, xác nhận nguyên nhân, cách xử lý và cách kiểm tra phục hồi. PostgreSQL lưu lịch sử cùng bản resolution đã duyệt; chỉ bản đã xác nhận mới được lập chỉ mục bằng Mem0 OSS và dùng để tạo hoặc cập nhật Skill.
 
 Vòng lặp cải tiến:
 
@@ -60,7 +60,7 @@ Vòng lặp cải tiến:
 5. **Chỉ sử dụng tri thức đã duyệt:** Trí nhớ hoặc Skill chưa xác nhận không được coi là quy trình chính thức.
 6. **Có thể truy vết:** Gợi ý phải chỉ ra ticket, Skill hoặc bằng chứng vận hành làm nguồn.
 7. **PoC nhỏ nhưng mở rộng được:** Bắt đầu với một cluster và hai loại sự cố phổ biến.
-8. **AI được phép chưa đúng:** POM được đánh giá theo mức hỗ trợ kỹ sư, khả năng duy trì ngữ cảnh và chất lượng tri thức sau xác nhận, không chỉ theo câu trả lời đầu tiên.
+8. **AI được phép chưa đúng:** AIC được đánh giá theo mức hỗ trợ kỹ sư, khả năng duy trì ngữ cảnh và chất lượng tri thức sau xác nhận, không chỉ theo câu trả lời đầu tiên.
 9. **Tương đồng không đồng nghĩa cùng nguyên nhân:** Câu chữ giống nhau chỉ tạo ứng viên; bằng chứng hiện tại và dấu vân tay sự cố quyết định mức tương đồng kỹ thuật.
 
 ## 6. Các thành phần giải pháp
@@ -69,7 +69,7 @@ Vòng lặp cải tiến:
 
 - Quản lý ticket, trạng thái, người phụ trách và trao đổi xử lý.
 - Ticket ID liên kết nhiều alert, dịch vụ bị ảnh hưởng và dữ liệu điều tra vào cùng một sự cố.
-- Nhận lại bản tóm tắt hoặc liên kết tới phiên điều tra trong PostOps Memory.
+- Nhận lại bản tóm tắt hoặc liên kết tới phiên điều tra trong AI Incident Copilot (AIC).
 
 ### 6.2. HolmesGPT – bộ máy điều tra sự cố
 
@@ -90,7 +90,7 @@ Vòng lặp cải tiến:
 - Chạy nội bộ, sử dụng LiteLLM cho trích xuất và embedding multilingual chạy local.
 - Hỗ trợ trích xuất bản nháp memory từ hội thoại dài và tìm ứng viên tương đồng về ngữ nghĩa.
 - Chỉ lập chỉ mục resolution đã được kỹ sư xác nhận; không quản lý approval hoặc phiên bản Skill.
-- Trả về memory ID, score và metadata nguồn để POM kiểm tra lại bản chuẩn trong PostgreSQL.
+- Trả về memory ID, score và metadata nguồn để AIC kiểm tra lại bản chuẩn trong PostgreSQL.
 - Là thành phần tùy chọn của PoC; hiệu quả phải được so sánh với tìm kiếm trực tiếp bằng PostgreSQL/pgvector.
 
 ### 6.5. LiteLLM – cổng mô hình AI nội bộ
@@ -99,7 +99,7 @@ Vòng lặp cải tiến:
 - Thực hiện định tuyến model, logging, rate limit và fallback.
 - Không tự huấn luyện hoặc thay đổi trọng số model sau mỗi ticket.
 
-### 6.6. PostOps Memory – lớp tích hợp và giao diện nghiệp vụ
+### 6.6. AI Incident Copilot (AIC) – lớp tích hợp và giao diện nghiệp vụ
 
 - Đọc và liên kết ticket Redmine.
 - Khởi tạo phiên điều tra HolmesGPT.
@@ -117,7 +117,7 @@ Vòng lặp cải tiến:
 Người vận hành
       │
       ▼
-PostOps Memory ─────────────── Redmine
+AI Incident Copilot (AIC) ─────────────── Redmine
       │
       ├── dữ liệu chuẩn ───── PostgreSQL
       ├── recall ngữ nghĩa ── Mem0 OSS / Qdrant
@@ -129,7 +129,7 @@ PostOps Memory ─────────────── Redmine
 HolmesGPT và Mem0 extraction ── LiteLLM ───── Model AI on-premise
 ```
 
-HolmesGPT chuyên điều tra; PostgreSQL lưu dữ liệu nghiệp vụ đã xác nhận; Mem0 hỗ trợ trích xuất và tìm kiếm; LiteLLM cung cấp model; Redmine quản lý ticket; PostOps Memory điều phối quy trình và giữ kỹ sư ở vị trí quyết định cuối cùng.
+HolmesGPT chuyên điều tra; PostgreSQL lưu dữ liệu nghiệp vụ đã xác nhận; Mem0 hỗ trợ trích xuất và tìm kiếm; LiteLLM cung cấp model; Redmine quản lý ticket; AI Incident Copilot (AIC) điều phối quy trình và giữ kỹ sư ở vị trí quyết định cuối cùng.
 
 ## 8. Phạm vi PoC tối giản
 
@@ -149,15 +149,15 @@ Kỹ sư nhập Redmine ticket ID và bổ sung cluster, namespace hoặc khoả
 
 ### Bước 2: Thu thập ngữ cảnh
 
-PostOps Memory đọc tiêu đề, mô tả, bình luận và thông tin liên quan. Ticket ID là khóa liên kết giữa sự cố, nhiều alert và các dịch vụ bị ảnh hưởng.
+AI Incident Copilot (AIC) đọc tiêu đề, mô tả, bình luận và thông tin liên quan. Ticket ID là khóa liên kết giữa sự cố, nhiều alert và các dịch vụ bị ảnh hưởng.
 
 ### Bước 3: Tìm trí nhớ và Skill ứng viên
 
-Ứng dụng kết hợp metadata, từ khóa và semantic search để tìm sự cố cũ, nguyên nhân, cách xử lý và Skill có điều kiện áp dụng phù hợp. Kết quả chỉ là ứng viên; kỹ sư có thể chọn hoặc đánh dấu không liên quan. POM không coi hai ticket là cùng nguyên nhân chỉ vì câu chữ giống nhau.
+Ứng dụng kết hợp metadata, từ khóa và semantic search để tìm sự cố cũ, nguyên nhân, cách xử lý và Skill có điều kiện áp dụng phù hợp. Kết quả chỉ là ứng viên; kỹ sư có thể chọn hoặc đánh dấu không liên quan. AIC không coi hai ticket là cùng nguyên nhân chỉ vì câu chữ giống nhau.
 
 ### Bước 4: HolmesGPT điều tra
 
-PostOps Memory gửi nội dung ticket, phạm vi, thời gian và trí nhớ liên quan cho HolmesGPT. HolmesGPT kiểm tra Pod, Deployment, Node, Kubernetes Events và metric Prometheus để xác nhận hoặc loại trừ giả thuyết.
+AI Incident Copilot (AIC) gửi nội dung ticket, phạm vi, thời gian và trí nhớ liên quan cho HolmesGPT. HolmesGPT kiểm tra Pod, Deployment, Node, Kubernetes Events và metric Prometheus để xác nhận hoặc loại trừ giả thuyết.
 
 ### Bước 5: Trình bày kết quả có bằng chứng
 
@@ -165,15 +165,15 @@ Hệ thống hiển thị giả thuyết theo thứ tự ưu tiên, các bước
 
 ### Bước 6: Kỹ sư xử lý và phản hồi
 
-Kỹ sư tiếp tục chat, bổ sung bằng chứng, thử các bước phù hợp hoặc tự thực hiện cách điều tra riêng. Kỹ sư đánh giá gợi ý theo các mức: hữu ích, không cần thiết, không phù hợp, không chính xác, có rủi ro hoặc thiếu bước quan trọng. POM giữ lịch sử để không mất các lệnh và kết quả nằm rải rác trong nhiều lượt trao đổi.
+Kỹ sư tiếp tục chat, bổ sung bằng chứng, thử các bước phù hợp hoặc tự thực hiện cách điều tra riêng. Kỹ sư đánh giá gợi ý theo các mức: hữu ích, không cần thiết, không phù hợp, không chính xác, có rủi ro hoặc thiếu bước quan trọng. AIC giữ lịch sử để không mất các lệnh và kết quả nằm rải rác trong nhiều lượt trao đổi.
 
 ### Bước 7: Tổng hợp và xác nhận kết quả thực tế
 
-Khi kỹ sư thông báo sự cố đã được xử lý, POM tạo bản nháp resolution gồm nguyên nhân, các bước điều tra hữu ích, lệnh khắc phục thực tế, cách kiểm tra phục hồi và các thử nghiệm không hiệu quả. Kỹ sư có thể sửa, xóa hoặc viết lại hoàn toàn. Nội dung kỹ sư xác nhận là dữ liệu chuẩn để cải thiện hệ thống, không phụ thuộc việc AI có tìm ra đáp án hay không.
+Khi kỹ sư thông báo sự cố đã được xử lý, AIC tạo bản nháp resolution gồm nguyên nhân, các bước điều tra hữu ích, lệnh khắc phục thực tế, cách kiểm tra phục hồi và các thử nghiệm không hiệu quả. Kỹ sư có thể sửa, xóa hoặc viết lại hoàn toàn. Nội dung kỹ sư xác nhận là dữ liệu chuẩn để cải thiện hệ thống, không phụ thuộc việc AI có tìm ra đáp án hay không.
 
 ### Bước 8: Ghi nhớ kinh nghiệm
 
-PostOps Memory lưu raw conversation có kiểm soát, bằng chứng quan trọng, feedback và resolution đã duyệt vào PostgreSQL. Sau đó hệ thống tạo incident fingerprint và search document đã chuẩn hóa; chỉ nội dung đã xác nhận mới được đưa vào Mem0 hoặc pgvector. Không sao chép toàn bộ telemetry.
+AI Incident Copilot (AIC) lưu raw conversation có kiểm soát, bằng chứng quan trọng, feedback và resolution đã duyệt vào PostgreSQL. Sau đó hệ thống tạo incident fingerprint và search document đã chuẩn hóa; chỉ nội dung đã xác nhận mới được đưa vào Mem0 hoặc pgvector. Không sao chép toàn bộ telemetry.
 
 ### Bước 9: Tạo hoặc cập nhật Skill
 
@@ -181,11 +181,11 @@ Hệ thống tạo bản nháp Skill gồm điều kiện kích hoạt, dữ li�
 
 ### Bước 10: Phê duyệt và phát hành
 
-Kỹ sư rà soát, sửa và phê duyệt Skill. PostOps Memory xuất hoặc chuyển đổi Skill sang `SKILL.md`, sau đó cung cấp cho HolmesGPT và quản lý theo phiên bản.
+Kỹ sư rà soát, sửa và phê duyệt Skill. AI Incident Copilot (AIC) xuất hoặc chuyển đổi Skill sang `SKILL.md`, sau đó cung cấp cho HolmesGPT và quản lý theo phiên bản.
 
 ### Bước 11: Tái sử dụng và cải tiến
 
-Ở ticket tiếp theo, POM Memory truy xuất kinh nghiệm liên quan và HolmesGPT sử dụng Skill phù hợp. Feedback mới tiếp tục cải thiện tìm kiếm, nội dung Skill và thứ tự gợi ý.
+Ở ticket tiếp theo, AIC Memory truy xuất kinh nghiệm liên quan và HolmesGPT sử dụng Skill phù hợp. Feedback mới tiếp tục cải thiện tìm kiếm, nội dung Skill và thứ tự gợi ý.
 
 ## 10. Cấu trúc trí nhớ vận hành tối thiểu
 
@@ -238,7 +238,7 @@ AI không tự thay đổi trọng số sau mỗi sự cố. Hệ thống hữu 
 
 ### Giai đoạn 1 – PoC vòng lặp trí nhớ (3–6 tuần)
 
-- Xây giao diện PostOps Memory đọc ticket Redmine theo ID.
+- Xây giao diện AI Incident Copilot (AIC) đọc ticket Redmine theo ID.
 - Tích hợp truy xuất ứng viên từ PostgreSQL và Mem0 OSS.
 - Gọi HolmesGPT qua HTTP API và hiển thị báo cáo có bằng chứng.
 - Thu nhận kết luận và feedback của kỹ sư.
@@ -316,7 +316,7 @@ Mục tiêu tham khảo:
 | Ticket thiếu thông tin | Cho phép bổ sung cluster, namespace và khoảng thời gian |
 | Truy xuất nhầm sự cố | Hiển thị nguồn; kỹ sư chọn hoặc từ chối kết quả |
 | Dữ liệu nhạy cảm đi vào prompt | On-premise, che dữ liệu nhạy cảm và áp dụng retention |
-| Mem0 không quản lý định dạng Skill của HolmesGPT | PostOps Memory tạo, phiên bản hóa và xuất `SKILL.md` từ resolution đã duyệt |
+| Mem0 không quản lý định dạng Skill của HolmesGPT | AI Incident Copilot (AIC) tạo, phiên bản hóa và xuất `SKILL.md` từ resolution đã duyệt |
 | Telemetry quá lớn | Truy vấn tại nguồn, giới hạn thời gian và chỉ lưu bằng chứng cần thiết |
 
 ## 16. Phân tích theo sáu chiếc mũ tư duy
@@ -362,12 +362,12 @@ Mục tiêu tham khảo:
 
 ## 17. Điểm mới của sáng kiến
 
-Điểm mới không nằm ở một chatbot riêng lẻ. PostOps Memory xây dựng vòng đời trí nhớ vận hành khép kín:
+Điểm mới không nằm ở một chatbot riêng lẻ. AI Incident Copilot (AIC) xây dựng vòng đời trí nhớ vận hành khép kín:
 
 - Redmine định danh sự cố thực tế.
 - HolmesGPT điều tra dữ liệu hiện tại.
 - PostgreSQL lưu kinh nghiệm đã xác nhận; Mem0 OSS hoặc pgvector lập chỉ mục để truy xuất ứng viên tương đồng.
-- PostOps Memory thu nhận lựa chọn và feedback của kỹ sư.
+- AI Incident Copilot (AIC) thu nhận lựa chọn và feedback của kỹ sư.
 - Kinh nghiệm được chuẩn hóa thành Skill, phê duyệt và tái sử dụng.
 - Dữ liệu sử dụng tiếp tục cải thiện tìm kiếm, xếp hạng và chất lượng Skill.
 
@@ -375,7 +375,7 @@ AI ngày càng phù hợp với môi trường của Tổng công ty thông qua 
 
 ## 18. Kết luận và đề xuất
 
-Đề xuất triển khai PoC **PostOps Memory** trong 1–2 tháng với một Kubernetes cluster, hai loại sự cố `CrashLoopBackOff` và `OOMKilled`, cùng 10–20 ticket hoặc kịch bản đã xác nhận.
+Đề xuất triển khai PoC **AI Incident Copilot (AIC)** trong 1–2 tháng với một Kubernetes cluster, hai loại sự cố `CrashLoopBackOff` và `OOMKilled`, cùng 10–20 ticket hoặc kịch bản đã xác nhận.
 
 PoC cần chứng minh ba năng lực:
 

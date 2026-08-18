@@ -1,4 +1,4 @@
-# CKAD-LIFE-002 — Run B Round 2 (điều tra lặp + POM Memory)
+# CKAD-LIFE-002 — Run B Round 2 (điều tra lặp + AIC Memory)
 
 ## Kết quả
 
@@ -15,4 +15,4 @@
 
 ## Đánh giá
 
-Round 1 đạt 90/100 do overclaim registry/DNS. Với hội thoại lặp, POM Memory giúp gợi ý hướng kiểm tra nhưng không thay thế bằng chứng; sau 3 vòng HolmesGPT đạt kết luận phân biệt đúng, **100/100**.
+Round 1 đạt 90/100 do overclaim registry/DNS. Với hội thoại lặp, AIC Memory giúp gợi ý hướng kiểm tra nhưng không thay thế bằng chứng; sau 3 vòng HolmesGPT đạt kết luận phân biệt đúng, **100/100**.

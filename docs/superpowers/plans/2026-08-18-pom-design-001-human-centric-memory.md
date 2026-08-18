@@ -1,10 +1,10 @@
-# POM-DESIGN-001 Human-Centric Memory Implementation Plan
+# AIC-DESIGN-001 Human-Centric Memory Implementation Plan
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Revise the PostOps Memory proposal so it describes a human-led DevOps copilot using PostgreSQL as the business source of truth and Mem0 OSS only as an optional extraction and retrieval engine.
+**Goal:** Revise the AI Incident Copilot (AIC) proposal so it describes a human-led DevOps copilot using PostgreSQL as the business source of truth and Mem0 OSS only as an optional extraction and retrieval engine.
 
-**Architecture:** PostOps Memory orchestrates ticket context, HolmesGPT investigation, conversation history, engineer feedback, and resolution approval. The engineer's confirmed resolution is authoritative; PostgreSQL stores business records and approval state, while Mem0/Qdrant indexes only approved resolution documents for semantic candidate recall.
+**Architecture:** AI Incident Copilot (AIC) orchestrates ticket context, HolmesGPT investigation, conversation history, engineer feedback, and resolution approval. The engineer's confirmed resolution is authoritative; PostgreSQL stores business records and approval state, while Mem0/Qdrant indexes only approved resolution documents for semantic candidate recall.
 
 **Tech Stack:** Markdown, PostgreSQL, pgvector, Mem0 OSS, Qdrant embedded, HolmesGPT, LiteLLM, Kubernetes, Prometheus, Loki, Redmine (future integration).
 
@@ -13,7 +13,7 @@
 ## Global Constraints
 
 - Story/task ID: `POM-DESIGN-001`.
-- The engineer remains the final authority; POM is not required to diagnose correctly on the first response.
+- The engineer remains the final authority; AIC is not required to diagnose correctly on the first response.
 - PostgreSQL is the business system of record for tickets, conversations, feedback, resolutions, approvals, and Skill versions.
 - Mem0 OSS is optional and limited to extraction, semantic candidate recall, and conversational assistance; it is not the approval or Skill-governance system.
 - Only engineer-confirmed resolutions may be indexed as reusable operational memory.
@@ -51,7 +51,7 @@
 
 - [ ] **Step 2: Record the expected GREEN contract**
 
-  The final documents must explicitly state: POM assists rather than decides; engineers may provide the final correct resolution; raw conversations are retained for traceability; approved resolutions are separate from untrusted assistant output; PostgreSQL is authoritative; Mem0 is an optional derived index.
+  The final documents must explicitly state: AIC assists rather than decides; engineers may provide the final correct resolution; raw conversations are retained for traceability; approved resolutions are separate from untrusted assistant output; PostgreSQL is authoritative; Mem0 is an optional derived index.
 
 ### Task 2: Revise the core innovation proposal
 
@@ -69,7 +69,7 @@
 
 - [ ] **Step 2: Update objectives and design principles**
 
-  Add that the AI may be incomplete or wrong during investigation, the engineer's confirmed resolution is authoritative, and POM's value includes evidence collection, conversation continuity, summarization, and organizational learning.
+  Add that the AI may be incomplete or wrong during investigation, the engineer's confirmed resolution is authoritative, and AIC's value includes evidence collection, conversation continuity, summarization, and organizational learning.
 
 - [ ] **Step 3: Update the component and logical architecture sections**
 
@@ -95,11 +95,11 @@
 
 **Interfaces:**
 - Consumes: the canonical product roles from Task 2.
-- Produces: a provider-neutral `HolmesGPT + POM Memory` Run B contract implemented initially with Mem0 OSS.
+- Produces: a provider-neutral `HolmesGPT + AIC Memory` Run B contract implemented initially with Mem0 OSS.
 
 - [ ] **Step 1: Rename Run B without falsifying historical results**
 
-  Use `HolmesGPT + POM Memory (Mem0 OSS)` for the pending run. Keep Run A unchanged and do not invent Run B scores.
+  Use `HolmesGPT + AIC Memory (Mem0 OSS)` for the pending run. Keep Run A unchanged and do not invent Run B scores.
 
 - [ ] **Step 2: Replace the managed-provider-specific contract**
 
@@ -168,4 +168,4 @@
 
 - [ ] **Step 5: Live verification and cleanup**
 
-  No live Kubernetes or external service change is required for a documentation-only revision. Confirm no temporary file or test resource was created. Proposed commit boundary: one documentation commit, `docs: revise PostOps Memory as a human-led copilot`.
+  No live Kubernetes or external service change is required for a documentation-only revision. Confirm no temporary file or test resource was created. Proposed commit boundary: one documentation commit, `docs: revise AI Incident Copilot (AIC) as a human-led copilot`.

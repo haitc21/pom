@@ -1,7 +1,7 @@
-# CKAD-LIFE-003 — Run B: HolmesGPT + POM Memory (Mem0 OSS)
+# CKAD-LIFE-003 — Run B: HolmesGPT + AIC Memory (Mem0 OSS)
 
 **Ngày chạy:** 2026-08-18
-**Mode:** HolmesGPT + POM Memory (Mem0 OSS)
+**Mode:** HolmesGPT + AIC Memory (Mem0 OSS)
 **Namespace:** `holmes-eval-ckad-life-003-run-b`
 **Memory data:** `/data/k8s-poc/mem0/data/ckad-life-003`
 
