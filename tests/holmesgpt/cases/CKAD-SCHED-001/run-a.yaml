@@ -1,0 +1,24 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: holmes-eval-ckad-sched-001-run-a
+  labels: {postops.poc/test: "true", postops.poc/case-id: CKAD-SCHED-001, postops.poc/run-id: run-a-holmesgpt}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ckad-sched-001
+  namespace: holmes-eval-ckad-sched-001-run-a
+  labels: {postops.poc/test: "true", postops.poc/case-id: CKAD-SCHED-001}
+spec:
+  replicas: 1
+  selector: {matchLabels: {app: ckad-sched-001}}
+  template:
+    metadata: {labels: {app: ckad-sched-001, postops.poc/test: "true", postops.poc/case-id: CKAD-SCHED-001}}
+    spec:
+      containers:
+        - name: nginx
+          image: docker.io/library/nginx:1.27
+          resources:
+            requests: {cpu: "100"}
+            limits: {cpu: "100"}

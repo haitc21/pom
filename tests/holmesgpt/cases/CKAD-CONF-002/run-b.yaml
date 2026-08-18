@@ -1,0 +1,33 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: holmes-eval-ckad-conf-002-run-b
+  labels: {postops.poc/test: "true", postops.poc/case-id: CKAD-CONF-002, postops.poc/run-id: run-b-holmesgpt-memory}
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: app-secret
+  namespace: holmes-eval-ckad-conf-002-run-b
+type: Opaque
+stringData: {EXISTING_KEY: ok}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ckad-conf-002
+  namespace: holmes-eval-ckad-conf-002-run-b
+  labels: {postops.poc/test: "true", postops.poc/case-id: CKAD-CONF-002}
+spec:
+  replicas: 1
+  selector: {matchLabels: {app: ckad-conf-002}}
+  template:
+    metadata: {labels: {app: ckad-conf-002, postops.poc/test: "true", postops.poc/case-id: CKAD-CONF-002}}
+    spec:
+      nodeSelector: {kubernetes.io/hostname: k8s03}
+      containers:
+        - name: nginx
+          image: docker.io/library/nginx:1.27
+          env:
+            - name: REQUIRED_VALUE
+              valueFrom: {secretKeyRef: {name: app-secret, key: MISSING_KEY}}

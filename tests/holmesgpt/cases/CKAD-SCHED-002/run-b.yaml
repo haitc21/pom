@@ -1,0 +1,27 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: holmes-eval-ckad-sched-002-run-b
+  labels: {postops.poc/test: "true", postops.poc/case-id: CKAD-SCHED-002, postops.poc/run-id: run-b-mem0}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ckad-sched-002
+  namespace: holmes-eval-ckad-sched-002-run-b
+  labels: {postops.poc/test: "true", postops.poc/case-id: CKAD-SCHED-002}
+spec:
+  replicas: 1
+  selector: {matchLabels: {app: ckad-sched-002}}
+  template:
+    metadata: {labels: {app: ckad-sched-002, postops.poc/test: "true", postops.poc/case-id: CKAD-SCHED-002}}
+    spec:
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - {key: kubernetes.io/hostname, operator: In, values: [node-that-does-not-exist]}
+      containers:
+        - name: nginx
+          image: docker.io/library/nginx:1.27

@@ -1,0 +1,61 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: holmes-eval-ckad-life-003-run-a
+  labels:
+    postops.poc/test: "true"
+    postops.poc/case-id: CKAD-LIFE-003
+    postops.poc/run-id: run-a-holmesgpt
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ckad-life-003
+  namespace: holmes-eval-ckad-life-003-run-a
+  labels:
+    postops.poc/test: "true"
+    postops.poc/case-id: CKAD-LIFE-003
+    postops.poc/run-id: run-a-holmesgpt
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ckad-life-003
+  template:
+    metadata:
+      labels:
+        app: ckad-life-003
+        postops.poc/test: "true"
+        postops.poc/case-id: CKAD-LIFE-003
+        postops.poc/run-id: run-a-holmesgpt
+    spec:
+      nodeSelector:
+        kubernetes.io/hostname: k8s03
+      containers:
+        - name: nginx
+          image: docker.io/library/nginx:1.27
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: http
+              containerPort: 80
+          readinessProbe:
+            httpGet:
+              path: /wrong-ready
+              port: http
+            periodSeconds: 5
+            failureThreshold: 2
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ckad-life-003
+  namespace: holmes-eval-ckad-life-003-run-a
+  labels:
+    postops.poc/test: "true"
+    postops.poc/case-id: CKAD-LIFE-003
+spec:
+  selector:
+    app: ckad-life-003
+  ports:
+    - port: 80
+      targetPort: http

@@ -1,0 +1,20 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: holmes-eval-ckad-sched-003-run-a
+  labels: {postops.poc/test: "true", postops.poc/case-id: CKAD-SCHED-003, postops.poc/run-id: run-a-holmesgpt}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ckad-sched-003
+  namespace: holmes-eval-ckad-sched-003-run-a
+  labels: {postops.poc/test: "true", postops.poc/case-id: CKAD-SCHED-003}
+spec:
+  replicas: 1
+  selector: {matchLabels: {app: ckad-sched-003}}
+  template:
+    metadata: {labels: {app: ckad-sched-003, postops.poc/test: "true", postops.poc/case-id: CKAD-SCHED-003}}
+    spec:
+      nodeSelector: {kubernetes.io/hostname: k8s03}
+      containers: [{name: nginx, image: docker.io/library/nginx:1.27}]
