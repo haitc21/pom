@@ -37,17 +37,17 @@
 
 **Interfaces:**
 - Consumes: the current proposal and evaluation documents.
-- Produces: an exact list of stale TencentDB-specific and AI-authoritative claims to remove or qualify.
+- Produces: an exact list of stale vendor-specific and AI-authoritative claims to remove or qualify.
 
 - [ ] **Step 1: Run the RED terminology check**
 
   Run:
 
   ```bash
-  rtk rg -n "TencentDB|triển khai nội bộ|quản lý Skill|HolmesGPT \+ TencentDB" README.md outputs docs/testing docs/superpowers/plans/2026-08-18-holmesgpt-memory-evaluation.md
+  rtk rg -n "managed memory service|triển khai nội bộ|quản lý Skill|HolmesGPT \+ external" README.md outputs docs/testing docs/superpowers/plans/2026-08-18-holmesgpt-memory-evaluation.md
   ```
 
-  Expected: matches show that the proposal still treats TencentDB as an on-premise open-source memory and assigns approval/Skill governance to the memory backend.
+  Expected: matches show that the proposal still treats an external managed service as the local memory and assigns approval/Skill governance to the memory backend.
 
 - [ ] **Step 2: Record the expected GREEN contract**
 
@@ -65,7 +65,7 @@
 
 - [ ] **Step 1: Update the overview and technology roles**
 
-  Replace TencentDB-specific positioning with an on-premise Agent Memory layer whose PoC candidate is Mem0 OSS. State that PostgreSQL owns the business records and that LiteLLM continues to serve HolmesGPT and memory extraction without requiring an embeddings route.
+  Replace managed-provider positioning with an on-premise Agent Memory layer whose PoC candidate is Mem0 OSS. State that PostgreSQL owns the business records and that LiteLLM continues to serve HolmesGPT and memory extraction without requiring an embeddings route.
 
 - [ ] **Step 2: Update objectives and design principles**
 
@@ -101,7 +101,7 @@
 
   Use `HolmesGPT + POM Memory (Mem0 OSS)` for the pending run. Keep Run A unchanged and do not invent Run B scores.
 
-- [ ] **Step 2: Replace the TencentDB V3-specific contract**
+- [ ] **Step 2: Replace the managed-provider-specific contract**
 
   Define approved-resolution ingestion, PostgreSQL identifiers, Mem0 metadata, local FastEmbed embeddings, Qdrant storage, recall provenance, and fallback to HolmesGPT without memory.
 
@@ -111,7 +111,7 @@
 
 - [ ] **Step 4: Update handoff state**
 
-  Record that TencentDB is no longer the local PoC backend and that Mem0 remains a candidate whose value must be measured against direct PostgreSQL/pgvector retrieval.
+  Record that the managed provider is no longer the local PoC backend and that Mem0 remains a candidate whose value must be measured against direct PostgreSQL/pgvector retrieval.
 
 ### Task 4: Verify documentation integrity and prepare handoff
 
@@ -128,10 +128,10 @@
   Run:
 
   ```bash
-  rtk rg -n "TencentDB Agent Memory|HolmesGPT \+ TencentDB" README.md outputs docs/testing docs/infra/codex-handoff.md
+  rtk rg -n "managed provider|HolmesGPT \+ external" README.md outputs docs/testing docs/infra/codex-handoff.md
   ```
 
-  Expected: no active architecture or pending-run claim uses TencentDB; historical comparison text, if retained, is explicitly labelled historical.
+  Expected: no active architecture or pending-run claim uses an external managed provider; historical comparison text, if retained, is explicitly labelled historical.
 
 - [ ] **Step 2: Verify required human-centric terms**
 

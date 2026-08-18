@@ -18,12 +18,11 @@ Deployment `ckad-life-001` trong namespace tạm thời được cấu hình đ�
 | Lần chạy | Cấu hình | Kết quả | Điểm | Đánh giá |
 |---|---|---|---:|---|
 | [Run A](run-a-holmesgpt.md) | Chỉ HolmesGPT, không POM Memory | Đã hoàn tất | 88/100 | Đúng root cause và bằng chứng; có sai lệch nhỏ về Pod phase tại thời điểm trả lời |
-| [Run B](run-b-holmesgpt-memory.md) | HolmesGPT + POM Memory (Mem0 OSS) | Chưa thực hiện | — | Chờ chạy cùng prompt, model và oracle tương đương Run A |
+| [Run B](run-b-holmesgpt-memory.md) | HolmesGPT + POM Memory (Mem0 OSS) | Đã hoàn tất | 100/100 | Mem0 recall đúng resolution đã duyệt; HolmesGPT xác minh độc lập bằng chứng hiện tại |
 
-## So sánh cần thực hiện sau Run B
+## So sánh sau Run B
 
-- Điểm Run B trừ điểm Run A.
-- Thời gian tới giả thuyết đúng.
-- Số tool call, token và thời gian phản hồi.
-- Memory có truy hồi đúng case hay đưa vào thông tin không phù hợp.
+- Run B đạt 100/100, cao hơn Run A 12 điểm; chưa đủ dữ liệu để kết luận về hiệu suất token/latency vì Run A chưa có cùng telemetry.
+- Mem0 truy hồi đúng case và không gây anchoring sai trong exact recurrence.
+- Các cohort paraphrase, analogous, cross-project và hard-negative sẽ được chạy ở các bài test tiếp theo.
 - Khả năng giữ đúng namespace, Pod, image và điều kiện áp dụng.
