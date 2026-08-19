@@ -71,7 +71,7 @@ def main() -> None:
     recalled = top.get("memory", "")
     response = httpx.post(
         f"{args.base_url.rstrip('/')}/api/chat",
-        json={"ask": args.prompt + memory_prompt(recalled), "model": "mistral"}, timeout=300,
+        json={"ask": args.prompt + memory_prompt(recalled), "model": "mistral-3.5"}, timeout=300,
     )
     response.raise_for_status()
     print(json.dumps({

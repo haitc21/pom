@@ -1,6 +1,6 @@
 # Codex handoff – AI Incident Copilot (AIC) PoC
 
-Last updated: 2026-08-17
+Last updated: 2026-08-19
 
 ## Current objective
 
@@ -15,15 +15,15 @@ Validate the AI Incident Copilot (AIC) idea: use HolmesGPT for read-only Kuberne
 - Grafana: one replica, PostgreSQL backend, no NFS SQLite.
 - Loki: one monolithic replica using NFS.
 - Prometheus: one replica; current PoC storage remains the existing NFS PVC.
-- HolmesGPT: Helm release `holmesgpt`, chart/image 0.39.0, namespace `holmesgpt`, one replica on `k8s02`.
+- HolmesGPT: Helm release `holmesgpt`, chart/image 0.39.0, namespace `holmesgpt`; deployment is intentionally scaled to `0` while HolmesGPT is transitioned to Docker Compose. The Helm release and configuration remain intact.
 - HolmesGPT RBAC is read-only (`get/list/watch`); delete pod is denied.
-- HolmesGPT endpoint through LB: `http://holmesgpt.k8s.local/api/chat`.
+- The legacy Kubernetes endpoint `http://holmesgpt.k8s.local/api/chat` is unavailable while the deployment is scaled to `0`.
 - Host CLI `holmes` 0.39.0 is installed with Python 3.12 and is a standalone agent; it is not a remote client for the HolmesGPT server. The server remains the intended PoC path.
 
 ## HolmesGPT configuration
 
 - LiteLLM endpoint: `https://llmpipe.vnpost.vn/v1`.
-- Current model alias: `mistral` → `openai/mistral-3.5`.
+- Current model alias: `mistral-3.5` → `openai/mistral-3.5`.
 - Enabled: Kubernetes core/logs, kube-prometheus-stack, Prometheus metrics, Grafana Loki.
 - Disabled: Internet, Bash, Robusta, Skills, Connectivity Check and write/remediation actions.
 - `CLUSTER_NAME=k8s-poc` is configured.
@@ -61,9 +61,9 @@ Validate the AI Incident Copilot (AIC) idea: use HolmesGPT for read-only Kuberne
 
 ## Next recommended work
 
-1. Start the five PoC VMs and verify `kubectl get nodes`.
-2. Verify HolmesGPT through `holmesgpt.k8s.local`.
-3. Prototype a small `AI Incident Copilot (AIC) Adapter` around HolmesGPT `/api/chat`.
+1. Keep the five PoC VMs running and verify `kubectl get nodes` before demo work.
+2. Implement the Docker Compose demo in `docs/superpowers/plans/2026-08-19-aic-docker-compose-demo.md`.
+3. Verify the Compose HolmesGPT `/api/chat` endpoint against the external Kubernetes cluster.
 4. Seed 10–20 approved `CrashLoopBackOff`/`OOMKilled` cases.
 5. Compare baseline investigation versus `recall → investigate → feedback → write memory`.
 6. Evaluate Mem0 OSS as an optional extraction/retrieval layer against direct PostgreSQL/pgvector search before committing to a production architecture.

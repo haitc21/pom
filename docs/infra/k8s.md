@@ -464,7 +464,7 @@ Reproducible Helm values and credential templates are kept under [`deploy/k8s/`]
 
 The install order and pinned chart versions are documented in [`deploy/k8s/README.md`](/home/haitc/project/pom/deploy/k8s/README.md). The values reproduce the current PoC sizing and read-only HolmesGPT RBAC; they do not include credentials.
 
-HolmesGPT can be accessed through the existing `k8s-lb` without port-forwarding:
+When the Kubernetes deployment has at least one replica, HolmesGPT can be accessed through the existing `k8s-lb` without port-forwarding. As of 2026-08-19 the deployment is intentionally scaled to `0` during the Docker Compose transition, so this legacy endpoint is currently unavailable:
 
 ```bash
 kubectl apply -f deploy/k8s/holmesgpt-ingress.yaml
@@ -482,7 +482,7 @@ Run it by exporting only the key from the existing LibreChat `.env` (do not sour
 
 ```bash
 export LITELLM_API_KEY="$(sed -n 's/^LITELLM_API_KEY=//p' ~/project/LibreChat/.env | sed 's/^"//; s/"$//')"
-holmes ask --model mistral --no-interactive \
+holmes ask --model mistral-3.5 --no-interactive \
   'Liệt kê các node Kubernetes và trạng thái Ready của chúng.'
 ```
 
@@ -491,9 +491,9 @@ The CLI uses the host's `~/.kube/config`, so it can inspect Kubernetes directly.
 HolmesGPT `0.39.0` is installed with Helm release `holmesgpt` in namespace `holmesgpt`:
 
 - Service: `holmesgpt-holmes` (ClusterIP, port 80 -> container port 5050)
-- Replica: 1, pinned to `k8s02` for the PoC
+- Desired Helm configuration: 1 replica pinned to `k8s02`; current runtime state: scaled to `0` for the Docker Compose transition
 - Model gateway: LiteLLM-compatible endpoint `https://llmpipe.vnpost.vn/v1`
-- Model: `mistral` (`openai/mistral-3.5`)
+- Model label: `mistral-3.5` (`openai/mistral-3.5`)
 - Enabled toolsets: Kubernetes core/logs, kube-prometheus-stack, Prometheus metrics, Loki logs
 - Disabled: Internet, Bash, Robusta, Skills, Connectivity Check and all remediation/write actions
 - RBAC: generated ClusterRole contains only `get`, `list`, and `watch` verbs; deleting pods is denied
@@ -503,13 +503,13 @@ HolmesGPT `0.39.0` is installed with Helm release `holmesgpt` in namespace `holm
 
 The cluster has no general Internet egress. To reach LiteLLM, `k8s02` uses a temporary NAT interface with a single host route to the resolved LiteLLM address; its default route remains the internal `postops-k8s` gateway. The route is currently ephemeral and must be made persistent or replaced with an approved internal egress proxy before treating this as production-like infrastructure.
 
-Validation performed through a local port-forward:
+Historical validation was performed through a local port-forward while the Kubernetes replica was running:
 
 ```bash
 kubectl -n holmesgpt port-forward svc/holmesgpt-holmes 18080:80
 curl -H 'Content-Type: application/json' \
-  -d '{"ask":"List the Kubernetes nodes and report their readiness status.","model":"mistral"}' \
+  -d '{"ask":"List the Kubernetes nodes and report their readiness status.","model":"mistral-3.5"}' \
   http://127.0.0.1:18080/api/chat
 ```
 
-The Kubernetes investigation returned all three nodes as `Ready`. The previous missing-cluster and invalid-Loki-toolset warnings were corrected and the Helm release is now deployed.
+The Kubernetes investigation returned all three nodes as `Ready`. The previous missing-cluster and invalid-Loki-toolset warnings were corrected. The Helm release remains installed, but its deployment is currently scaled to `0`; do not expect the Service, Ingress or port-forward examples above to answer until a replica is restored.

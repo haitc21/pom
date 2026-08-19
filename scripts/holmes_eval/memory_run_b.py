@@ -11,7 +11,7 @@ from typing import Any
 
 
 CASE_ID = "CKAD-LIFE-001"
-MODEL = "mistral"
+MODEL = "mistral-3.5"
 LITELLM_BASE_URL = "https://llmpipe.vnpost.vn/v1"
 
 

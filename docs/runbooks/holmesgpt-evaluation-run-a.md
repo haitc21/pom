@@ -23,7 +23,7 @@ The first attempt used `busybox:1.36`, but the image was not cached and the offl
 
 ## HolmesGPT request
 
-HolmesGPT was called through a temporary local port-forward to the HolmesGPT Service to remove LB/NodePort latency from the AI measurement. The request used model `mistral`, no memory context, and asked for symptom, root cause, evidence, excluded causes, safe remediation, and recovery verification. No command returned by HolmesGPT was executed.
+HolmesGPT was called through a temporary local port-forward to the HolmesGPT Service to remove LB/NodePort latency from the AI measurement. The request used the former model label `mistral` (now standardized as `mistral-3.5`), no memory context, and asked for symptom, root cause, evidence, excluded causes, safe remediation, and recovery verification. No command returned by HolmesGPT was executed.
 
 ## Result summary
 

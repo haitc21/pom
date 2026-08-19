@@ -13,7 +13,7 @@
 - FastEmbed `0.8.0`, multilingual model `sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2`.
 - Qdrant embedded data: `/data/k8s-poc/mem0/data`.
 - HolmesGPT called through temporary local port-forward `127.0.0.1:18080`.
-- LiteLLM model route remained `mistral`; no LiteLLM configuration was changed.
+- The historical run used model label `mistral`; the current HolmesGPT label is standardized as `mistral-3.5`, matching the LiteLLM route.
 
 ## Approved memory seed
 
