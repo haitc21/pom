@@ -1,0 +1,72 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: holmes-eval-aic-nginx-config-current
+  labels:
+    postops.poc/test: "true"
+    postops.poc/case-id: AIC-MEMORY-NGINX-CONFIG
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: edge-nginx-config
+  namespace: holmes-eval-aic-nginx-config-current
+data:
+  default.conf: |
+    server {
+      listen 80;
+      server_name _;
+      location / {
+        return 200 "edge gateway ready\n"
+      }
+    }
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: edge-gateway
+  namespace: holmes-eval-aic-nginx-config-current
+  labels:
+    app: edge-gateway
+    postops.poc/test: "true"
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: edge-gateway
+  template:
+    metadata:
+      labels:
+        app: edge-gateway
+        postops.poc/test: "true"
+    spec:
+      nodeSelector:
+        kubernetes.io/hostname: k8s03
+      containers:
+        - name: nginx
+          image: docker.io/library/nginx:1.27
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: http
+              containerPort: 80
+          volumeMounts:
+            - name: nginx-config
+              mountPath: /etc/nginx/conf.d/default.conf
+              subPath: default.conf
+      volumes:
+        - name: nginx-config
+          configMap:
+            name: edge-nginx-config
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: edge-gateway
+  namespace: holmes-eval-aic-nginx-config-current
+spec:
+  selector:
+    app: edge-gateway
+  ports:
+    - name: http
+      port: 80
+      targetPort: http

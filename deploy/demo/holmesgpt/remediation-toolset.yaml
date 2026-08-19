@@ -1,0 +1,15 @@
+mcp_servers:
+  kubernetes_remediation:
+    description: "Scoped Kubernetes remediation; every mutation requires engineer approval"
+    llm_instructions: >-
+      Use run_kubectl_command only after current evidence identifies a safe,
+      bounded remediation requested by the engineer. Invoke the tool instead
+      of printing a mutating kubectl command in prose. The Holmes approval
+      workflow will show the exact action and stop before execution.
+    config:
+      # Holmes runs in Docker Compose, outside Kubernetes DNS.  This is the
+      # PoC's private KVM NAT address, not a public endpoint.
+      url: "http://10.77.0.12:30800/mcp"
+      mode: streamable-http
+    approval_required_tools:
+      - "run_kubectl_command"

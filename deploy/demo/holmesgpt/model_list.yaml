@@ -1,0 +1,5 @@
+mistral-3.5:
+  model: openai/mistral-3.5
+  api_key: "{{ env.LITELLM_API_KEY }}"
+  api_base: https://llmpipe.vnpost.vn/v1
+  temperature: 0

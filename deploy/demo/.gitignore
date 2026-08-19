@@ -1,0 +1,11 @@
+.env
+holmesgpt/kubeconfig
+holmesgpt/*.crt
+holmesgpt/*.key
+*.log
+*.json
+qdrant-data/
+postgres-data/
+.venv/
+__pycache__/
+*.py[cod]

@@ -1,0 +1,48 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: holmes-eval-ckad-net-001-aic
+  labels:
+    postops.poc/test: "true"
+    postops.poc/case-id: CKAD-NET-001-AIC
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: web-api
+  namespace: holmes-eval-ckad-net-001-aic
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: web-api
+      tier: backend
+  template:
+    metadata:
+      labels:
+        app: web-api
+        tier: backend
+    spec:
+      nodeSelector:
+        kubernetes.io/hostname: k8s03
+      containers:
+        - name: nginx
+          image: docker.io/library/nginx:1.27
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: http
+              containerPort: 80
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: web-api
+  namespace: holmes-eval-ckad-net-001-aic
+spec:
+  selector:
+    app: web-api
+    tier: frontend
+  ports:
+    - name: http
+      port: 80
+      targetPort: http

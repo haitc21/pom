@@ -1,0 +1,27 @@
+toolsets:
+  bash:
+    enabled: false
+  connectivity_check:
+    enabled: false
+  internet:
+    enabled: false
+  kubernetes/core:
+    enabled: true
+  kubernetes/kube-prometheus-stack:
+    enabled: true
+  kubernetes/logs:
+    enabled: true
+  grafana/loki:
+    enabled: true
+    config:
+      api_url: http://10.77.0.12:30553
+  prometheus/metrics:
+    enabled: true
+    subtype: prometheus
+    config:
+      prometheus_url: http://10.77.0.12:30900
+  robusta:
+    enabled: false
+  skills:
+    enabled: false
+mcp_servers: {}

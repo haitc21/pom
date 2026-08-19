@@ -1,0 +1,28 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: holmes-eval-aic-approval-probe
+  labels:
+    postops.poc/test: "true"
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: approval-probe
+  namespace: holmes-eval-aic-approval-probe
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: approval-probe
+  template:
+    metadata:
+      labels:
+        app: approval-probe
+    spec:
+      nodeSelector:
+        kubernetes.io/hostname: k8s03
+      containers:
+        - name: nginx
+          image: docker.io/library/nginx:1.27
+          imagePullPolicy: IfNotPresent
